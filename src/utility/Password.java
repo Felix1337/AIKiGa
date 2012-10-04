@@ -2,7 +2,7 @@ package utility;
 
 public class Password {
 
-	private String HawAccName = "";
+	private String HawAccName = " ";
 	private String HawAccPw = "";
 	
 	public String getHawAccName() {
