@@ -1,7 +1,7 @@
 /*
 / @author Anton Romanov
-/ @date 04/10/2012
-/ @version 1.1
+/ @date 07/10/2012
+/ @version 1.2
 */
 
 
@@ -46,7 +46,9 @@ create table Gruppe (
  ID integer not null constraint PK_Gruppe primary key,
  Bezeichnung varchar2(100),
  Tageszeit integer not null constraint FK_Gruppe_Tageszeit references Tageszeit(ID),
- Kita integer not null constraint FK_Gruppe_Kita references Kita(ID)
+ Kita integer not null constraint FK_Gruppe_Kita references Kita(ID),
+ Stunden number not null,
+ constraint CK_Gruppe_Stunden check(Stunden>=0)
 ) cluster GruppeKind(ID);
 
 create table Kind (
@@ -55,8 +57,10 @@ create table Kind (
  Nachname varchar2(100) not null,
  Geburtsdatum date not null,
  Gehalt number(*,2) not null,
- constraint CK_Kind_Gehalt check (Gehalt > 0)
-);
+ constraint CK_Kind_Gehalt check (Gehalt > 0),
+ Familie number not null,
+ constraint CK_Kind_Familie check (Familie>=2)
+) cluster GruppeKind(ID);
 
 create table Warteliste (
  ID integer not null constraint PK_Warteliste primary key,
@@ -78,6 +82,7 @@ create table KindGruppe (
  constraint PK_KindGruppe primary key (Kind,Gruppe)
 ) cluster GruppeKind(Gruppe);
 
+/*
 create table PreiseA (
  Netto decimal not null constraint PK_PreiseA primary key,
  Zwei decimal not null,
@@ -122,7 +127,7 @@ create table PreiseE (
  Fuenf decimal not null,
  Sechs decimal not null
 );
-
+*/
 
 /*
 /   Sequenzen für IDs
@@ -214,13 +219,19 @@ trigger Gruppe_Anzahl_trigger
 /*
 /   Functions zum Ermitteln der Gebühren
 */
-create or replace function getPriceByID( Kind IN integer) return integer as
-  preis number;
+create or replace
+function getPriceByID( kid IN integer) return integer as
+  gehalt number;
+  familie number;
+  stunden number;
 begin
-  preis:=0; -- select ....
-  return preis;
+  select Gehalt into gehalt from Kind where ID=kid;
+  select Familie into familie from Kind where ID=kid;
+  select Stunden into stunden from Gruppe where Gruppe.ID=(select Gruppe from KindGruppe where KindGruppe.Kind=kid);
+  return getPriceByValues(gehalt,stunden,familie);
 end getPriceByID;
 /
+
 create or replace
 function getPriceByValues( Gehalt IN number, Stunden IN integer, Familie in integer) return number is
   preis number(38,0);
@@ -256,8 +267,6 @@ insert into Kita values(NULL,'Kita Bauerberg');
 insert into Tageszeit values(NULL,'vormittags');
 insert into Tageszeit values(NULL,'nachmittags');
 insert into Tageszeit values(NULL,'ganztags');
-insert into Gruppe values(NULL,'Katzen',1,1);
-insert into Kind values(NULL,'Anton','Romanov','01.01.2010',2500.00);
+insert into Gruppe values(NULL,'Katzen',1,1,4);
+insert into Kind values(NULL,'Anton','Romanov','01.01.2010',2500.00,2);
 insert into KindGruppe values(1,1,500,NULL);
-
-select Gruppe.ID, count(*) as Anzahl from Kind, Gruppe, KindGruppe where Kind.ID=KindGruppe.Kind and Gruppe.ID=KindGruppe.Gruppe group by Gruppe.ID;
