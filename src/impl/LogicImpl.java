@@ -17,8 +17,8 @@ public class LogicImpl implements Logic {
 
 	public LogicImpl() {
 		try {
-			conn = DriverManager.getConnection(null, Passwort.getUsername(),
-					Passwort.getPassword());
+			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+			conn = DriverManager.getConnection("jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09",Passwort.getUsername(), Passwort.getPassword());
 		} catch (SQLException e) {
 
 		}
@@ -152,7 +152,7 @@ public class LogicImpl implements Logic {
 			// Create file
 			FileWriter fstream = new FileWriter("out.txt");
 			BufferedWriter out = new BufferedWriter(fstream);
-			out.write("Rechnung für " + vname + " " + nname);
+			out.write("Rechnung fï¿½r " + vname + " " + nname);
 			out.newLine();
 			out.write("Rechnungsdatum: " + dt);
 			out.newLine();
