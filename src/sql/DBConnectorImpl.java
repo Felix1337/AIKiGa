@@ -12,6 +12,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -195,5 +196,43 @@ public class DBConnectorImpl {
 			preis = rs.getDouble("Preis");
 		}
 		return preis;
+	}
+	
+	public double getPriceByKind(Kind k) throws SQLException {
+		return getPriceByKindID(k.getId());
+	}
+	
+	public double getPriceByValues(int famMitglieder, double gehalt, int dauerBetreueung) throws SQLException{
+		String query = "select getPriceByValues(?,?,?) as Preis from dual";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setDouble(1, gehalt);
+		ps.setInt(2, dauerBetreueung);
+		ps.setInt(3, famMitglieder);
+		ResultSet rs = ps.executeQuery();
+		double preis = -1.0;
+		while(rs.next()){
+			preis = rs.getDouble("Preis");
+		}
+		return preis;
+	}
+	
+	//TODO gDatum aus Calendar!!!
+	public void addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit) throws SQLException{
+		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie) values(NULL,?,?,?,?,?)";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setString(1, vorame);
+		ps.setString(2, nachname);
+		ps.setString(3, ""); // <----- hier!!!
+		ps.setDouble(4, gehalt);
+		ps.setInt(5, anzahlFamMit);
+		ps.executeQuery();
+	}
+	
+	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
+		String query = "insert into Warteliste(Kind,Gruppe) values(?,?)";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, k.getId());
+		ps.setInt(2, g.getId());
+		ps.execute();
 	}
 }
