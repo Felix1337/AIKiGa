@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
 /*
  *	@author Anton Romanov
  *	@date 11.10.2012
- *	@version 1.1
+ *	@version 1.2
  */
 
 public class DBConnectorImpl {
@@ -226,6 +227,7 @@ public class DBConnectorImpl {
 		ps.setDouble(4, gehalt);
 		ps.setInt(5, anzahlFamMit);
 		ps.executeQuery();
+		getConn().commit();
 	}
 	
 	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
@@ -234,5 +236,52 @@ public class DBConnectorImpl {
 		ps.setInt(1, k.getId());
 		ps.setInt(2, g.getId());
 		ps.execute();
+		getConn().commit();
 	}
+	
+	public boolean addKindToGruppe(Kind k, Gruppe g){
+		String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
+		PreparedStatement ps;
+		try {
+			ps = getConn().prepareStatement(query);
+			ps.setInt(1, k.getId());
+			ps.setInt(2, g.getId());
+			ps.execute();
+			getConn().commit();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean addKindToGruppe(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, Gruppe g){
+		Savepoint savep=null;
+		try{
+			savep = getConn().setSavepoint("Anfang");
+			addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
+			String kind_query = "select max(ID) as ID from Kind";
+			ResultSet rs = executeStatement(kind_query);
+			int kind_id = -1;
+			while(rs.next()){
+				kind_id = rs.getInt("ID");
+			}
+			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
+			PreparedStatement ps = getConn().prepareStatement(query);
+			ps.setInt(1, kind_id);
+			ps.setInt(2, g.getId());
+			ps.execute();
+			getConn().commit();
+		} catch(SQLException e){
+			try {
+				getConn().rollback(savep);
+				return false;
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		
+		return true;
+	}
+	
 }
