@@ -7,4 +7,6 @@ public interface Gruppe {
 	public Integer getId();
 	
 	public String toString();
+
+	public String getZeit();
 }

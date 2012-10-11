@@ -50,7 +50,7 @@ public class Gui {
 	private ArrayList<Kita> kitas = new ArrayList<Kita>();
 	private ArrayList<Gruppe> gruppen = new ArrayList<Gruppe>();
 	private ArrayList<Kind> kinder = new ArrayList<Kind>();
-	private Gruppe dummiGroup = new GruppeImpl("",9999);
+	private Gruppe dummiGroup = new GruppeImpl("",9999,"nachts");
 	private Kita dummiKita = new KitaImpl("",9999);
 	private Kind dummiKid = new KindImpl("","",0,9999);
 	private Kind currentChild = dummiKid;
@@ -101,8 +101,8 @@ public class Gui {
 		
 		kitas.add(new KitaImpl("test1",0));
 		kitas.add(new KitaImpl("test2",1));
-		gruppen.add(new GruppeImpl("testg1",0));
-		gruppen.add(new GruppeImpl("testg2",1));
+		gruppen.add(new GruppeImpl("testg1",0,"nachts"));
+		gruppen.add(new GruppeImpl("testg2",1,"nachts"));
 		kinder.add(new KindImpl("testk1","nn1",12.000,0));
 		kinder.add(new KindImpl("testk2","nn2",1000000.00,1));
 		

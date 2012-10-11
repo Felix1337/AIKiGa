@@ -5,6 +5,8 @@ import interfaces.Kind;
 import interfaces.Kita;
 import interfaces.Logic;
 
+import utility.Password;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.sql.*;
@@ -14,11 +16,12 @@ import java.util.*;
 
 public class LogicImpl implements Logic {
 	Connection conn;
+	Password p = new Password();
 
 	public LogicImpl() {
 		try {
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-			conn = DriverManager.getConnection("jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09",Passwort.getUsername(), Passwort.getPassword());
+			conn = DriverManager.getConnection("jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09",p.getHawAccName(), p.getHawAccPw());
 		} catch (SQLException e) {
 
 		}
@@ -178,6 +181,13 @@ public class LogicImpl implements Logic {
 		} finally {
 			return res;
 		}
+	}
+
+	@Override
+	public double preisErmitteln(int FamMitglieder, double gehalt,
+			int dauerBetreueung) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
