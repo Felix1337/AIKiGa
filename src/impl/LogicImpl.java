@@ -5,6 +5,7 @@ import interfaces.Kind;
 import interfaces.Kita;
 import interfaces.Logic;
 
+import sql.DBConnectorImpl;
 import utility.Password;
 
 import java.io.BufferedWriter;
@@ -17,73 +18,44 @@ import java.util.*;
 public class LogicImpl implements Logic {
 	Connection conn;
 	Password p = new Password();
+	DBConnectorImpl dbconncetor;
 
 	public LogicImpl() {
-		try {
-			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-			conn = DriverManager.getConnection("jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09",p.getHawAccName(), p.getHawAccPw());
-		} catch (SQLException e) {
-
-		}
+		this.dbconncetor = DBConnectorImpl.valueOf(p.getHawAccName(), p.getHawAccPw());
+		this.dbconncetor.connect();
 	}
 
 	@Override
 	public Map<Integer, Kita> getKitas() {
-		Map<Integer, Kita> kitas = new HashMap<Integer, Kita>();
-		try (Statement s = conn.createStatement()) {
-			String query = "SELECT ID, Bezeichnung FROM Kita;";
-			ResultSet rs = s.executeQuery(query);
-			while (rs.next()) {
-				Integer id = rs.getInt("ID");
-				String name = rs.getString("Bezeichnung");
-				kitas.put(id, new KitaImpl(name, id));
-			}
+		try {
+			return dbconncetor.getKitas();
 		} catch (SQLException e) {
-			// TODO
-		} finally {
-			return kitas;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	@Override
 	public Map<Integer, Gruppe> getGruppen(Integer KitaId) {
-		Map<Integer, Gruppe> gruppen = new HashMap<Integer, Gruppe>();
-		try (Statement s = conn.createStatement()) {
-			String query = "SELECT Gruppe.ID, Gruppe.Bezeichnung, Tageszeit.Bezeichnung FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Kita = "
-					+ KitaId + ";";
-			ResultSet rs = s.executeQuery(query);
-			while (rs.next()) {
-				Integer id = rs.getInt(1);
-				String name = rs.getString(2);
-				String zeit = rs.getString(3);
-				gruppen.put(id, new GruppeImpl(name, id, zeit));
-			}
+		try {
+			return dbconncetor.getGruppenByKitaID(KitaId);
 		} catch (SQLException e) {
-			// TODO
-		} finally {
-			return gruppen;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	@Override
 	public Map<Integer, Kind> getKinder(Integer GruppeId) {
-		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
-		try (Statement s = conn.createStatement()) {
-			String query = "SELECT Vorname, Nachname, Gehalt, ID FROM Kind JOIN (SELECT * FROM Gruppe JOIN KindGruppe ON Gruppe.ID = KindGruppe.Gruppe) AS X ON Kind.ID = X.Kind WHERE Gruppe = "
-					+ GruppeId/* +";" */;
-			ResultSet rs = s.executeQuery(query);
-			while (rs.next()) {
-				String vname = rs.getString("Vorname");
-				String nname = rs.getString("Nachname");
-				double gehalt = rs.getDouble("Gehalt");
-				Integer id = rs.getInt("ID");
-				kinder.put(id, new KindImpl(vname, nname, gehalt, id));
-			}
+		try {
+			return dbconncetor.getKinder(GruppeId);
 		} catch (SQLException e) {
-			// TODO
-		} finally {
-			return kinder;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	@Override

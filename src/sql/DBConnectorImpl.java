@@ -126,7 +126,7 @@ public class DBConnectorImpl {
 	
 	public Map<Integer, Kita> getKitas() throws SQLException {
 		Map<Integer, Kita> kitas = new HashMap<Integer, Kita>();
-		String query = "SELECT ID, Bezeichnung FROM Kita;";
+		String query = "SELECT ID, Bezeichnung FROM Kita";
 		ResultSet rs = executeStatement(query);
 		while (rs.next()) {
 			Integer id = rs.getInt("ID");
