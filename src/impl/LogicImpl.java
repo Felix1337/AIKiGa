@@ -60,12 +60,11 @@ public class LogicImpl implements Logic {
 
 	@Override
 	public boolean isPlatzFrei(Integer KitaId, Integer GruppeId) {
-		try (Statement st = conn.createStatement()) {
-			String query = "SELECT COUNT(*) FROM KindGruppe where Gruppe="
-					+ GruppeId;
-			ResultSet rs = st.executeQuery(query);
-			return rs.getInt(1) < 30;
+		try {
+			return dbconncetor.isPlatzFrei(GruppeId);
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -158,8 +157,14 @@ public class LogicImpl implements Logic {
 	@Override
 	public double preisErmitteln(int FamMitglieder, double gehalt,
 			int dauerBetreueung) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		try {
+			return dbconncetor.getPriceByValues(FamMitglieder, gehalt, dauerBetreueung);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return Double.NaN;
 	}
 
 }
