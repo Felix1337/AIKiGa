@@ -1,5 +1,6 @@
 package sql;
 import impl.GruppeImpl;
+import impl.KindImpl;
 import impl.KitaImpl;
 import interfaces.Gruppe;
 import interfaces.Kind;
@@ -11,23 +12,25 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 /*
  *	@author Anton Romanov
  *	@date 11.10.2012
- *	@version 1.0
+ *	@version 1.1
  */
 
 public class DBConnectorImpl {
 	
-	private String username;
-	private String password;
+	private final String USERNAME;
+	private final String PASSWORD;
 	private Connection con;
-	private String url="jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09";
+	private final String URL="jdbc:oracle:thin:@ora.informatik.haw-hamburg.de:1521:inf09";
 	
 	private DBConnectorImpl(String user, String password){
-		this.password = password;
-		this.username = user;
+		this.PASSWORD = password;
+		this.USERNAME = user;
 	}
 	
 	public static DBConnectorImpl valueOf(String user, String password){
@@ -37,7 +40,7 @@ public class DBConnectorImpl {
 	public boolean connect(){
 		try {
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
-			setConnection(DriverManager.getConnection(url, getUser(), getPassword()));
+			setConnection(DriverManager.getConnection(URL, getUser(), getPassword()));
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 			return false;
@@ -46,11 +49,11 @@ public class DBConnectorImpl {
 	}
 	
 	private String getUser(){
-		return this.username;
+		return this.USERNAME;
 	}
 	
 	private String getPassword(){
-		return this.password;
+		return this.PASSWORD;
 	}
 	
 	private synchronized Connection getConn(){
@@ -71,10 +74,19 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
+	private ResultSet executeStatement(String s) throws SQLException{
+		Statement st = getConn().createStatement();
+		return st.executeQuery(s);
+	}
+
+	/*
+	 * API
+	 */
+	
 	public Gruppe getGruppeByKindID(int id) throws SQLException{
 		String query_gruppeID = "select g.ID, g.Bezeichnung as Gbez, t.Bezeichnung as Tbez from KindGruppe, Gruppe g, Tageszeit t where Kind=? and Gruppe=g.ID and g.tageszeit = t.ID;";
 		PreparedStatement ps = getConn().prepareStatement(query_gruppeID);
-		ps.setString(1, String.valueOf(id));
+		ps.setInt(1, id);
 		ResultSet rs = ps.executeQuery();
 		int gruppe_id = -1;
 		String bezeichnung = "";
@@ -110,9 +122,78 @@ public class DBConnectorImpl {
 		return getKitaByKindID(k.getId());
 	}
 	
-	private ResultSet executeStatement(String s) throws SQLException{
-		Statement st = getConn().createStatement();
-		return st.executeQuery(s);
+	public Map<Integer, Kita> getKitas() throws SQLException {
+		Map<Integer, Kita> kitas = new HashMap<Integer, Kita>();
+		String query = "SELECT ID, Bezeichnung FROM Kita;";
+		ResultSet rs = executeStatement(query);
+		while (rs.next()) {
+			Integer id = rs.getInt("ID");
+			String name = rs.getString("Bezeichnung");
+			kitas.put(id, new KitaImpl(name, id));
+		}
+		return kitas;
 	}
-
+	
+	public Map<Integer, Gruppe> getGruppenByKitaID(int kitaID) throws SQLException {
+		Map<Integer, Gruppe> gruppen = new HashMap<Integer, Gruppe>();
+		String query = "SELECT Gruppe.ID as GID, Gruppe.Bezeichnung as GBez, Tageszeit.Bezeichnung as Tbez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Kita = ?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kitaID);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			Integer id = rs.getInt("GID");
+			String name = rs.getString("GBez");
+			String zeit = rs.getString("Tbez");
+			gruppen.put(id, new GruppeImpl(name, id, zeit));
+		}
+		return gruppen;
+	}
+	
+	public Map<Integer, Gruppe> getGruppenByKita(Kita k) throws SQLException {
+		return getGruppenByKitaID(k.getId());
+	}
+	
+	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
+		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
+		String query = "SELECT Vorname, Nachname, Gehalt, ID FROM Kind k, KingGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppeID);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			String vname = rs.getString("Vorname");
+			String nname = rs.getString("Nachname");
+			double gehalt = rs.getDouble("Gehalt");
+			Integer id = rs.getInt("ID");
+			kinder.put(id, new KindImpl(vname, nname, gehalt, id));
+		}
+		return kinder;
+	}
+	
+	public boolean isPlatzFrei(int gruppeID) throws SQLException{
+		String query = "select count(*) as Anzahl from KindGruppe where Gruppe=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppeID);
+		ResultSet rs = ps.executeQuery();
+		int anzahl = 30;
+		while (rs.next()) {
+			anzahl = rs.getInt("Anzahl");
+		}
+		return anzahl<30;
+	}
+	
+	public boolean isPlatzFrei(Gruppe g) throws SQLException{
+		return isPlatzFrei(g.getId());
+	}
+	
+	public double getPriceByKindID(int id) throws SQLException{
+		String query = "select getPriceByID(?) as Preis from dual";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		ResultSet rs = ps.executeQuery();
+		double preis = -1.0;
+		while(rs.next()){
+			preis = rs.getDouble("Preis");
+		}
+		return preis;
+	}
 }
