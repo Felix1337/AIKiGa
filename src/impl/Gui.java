@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.SwingConstants;
+import java.awt.Font;
 
 public class Gui {
 
@@ -120,31 +121,31 @@ public class Gui {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		JLabel lblVorname = new JLabel("Vorname");
+		JLabel lblVorname = new JLabel("<html><FONT SIZE=2>Vorname</FONT></html>");
 		lblVorname.setBounds(9, 18, 46, 14);
 		frame.getContentPane().add(lblVorname);
 		
-		JLabel lblNachname = new JLabel("Nachname");
+		JLabel lblNachname = new JLabel("<html><FONT SIZE=2>Nachname</FONT></html>");
 		lblNachname.setBounds(106, 18, 86, 14);
 		frame.getContentPane().add(lblNachname);
 		
-		JLabel lblGehaltDerEltern = new JLabel("Gehalt der Eltern");
+		JLabel lblGehaltDerEltern = new JLabel("<html><FONT SIZE=2>Gehalt der Eltern</FONT></html>");
 		lblGehaltDerEltern.setBounds(9, 74, 86, 14);
 		frame.getContentPane().add(lblGehaltDerEltern);
 		
-		JLabel lblGruppe_pr = new JLabel("Gruppe");
+		JLabel lblGruppe_pr = new JLabel("<html><FONT SIZE=2>Gruppe</FONT></html>");
 		lblGruppe_pr.setBounds(105, 130, 86, 14);
 		frame.getContentPane().add(lblGruppe_pr);
 		
-		JLabel lblKita = new JLabel("Kita");
+		JLabel lblKita = new JLabel("<html><FONT SIZE=2>Kita</FONT></html>");
 		lblKita.setBounds(9, 210, 46, 14);
 		frame.getContentPane().add(lblKita);
 		
-		JLabel lblGruppe = new JLabel("Gruppe");
+		JLabel lblGruppe = new JLabel("<html><FONT SIZE=2>Gruppe</FONT></html>");
 		lblGruppe.setBounds(9, 256, 46, 14);
 		frame.getContentPane().add(lblGruppe);
 		
-		JLabel lblKind = new JLabel("Kind");
+		JLabel lblKind = new JLabel("<html><FONT SIZE=2>Kind</FONT></html>");
 		lblKind.setBounds(9, 305, 46, 14);
 		frame.getContentPane().add(lblKind);
 		
@@ -155,6 +156,7 @@ public class Gui {
 		JPanel panel = new JPanel();
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new BorderLayout(0, 0));
+		list.setFont(new Font("Dialog", Font.BOLD, 10));
 		panel.add(list, BorderLayout.CENTER);
 		
 		list.setModel(new AbstractListModel() {
@@ -169,10 +171,11 @@ public class Gui {
 		list.setModel(new DefaultComboBoxModel(kitas.toArray()));
 		
 		final JLabel lblMeldung = new JLabel(" ");
+		lblMeldung.setFont(new Font("Dialog", Font.BOLD, 10));
 		lblMeldung.setBounds(9, 179, 282, 23);
 		frame.getContentPane().add(lblMeldung);
 		
-		JLabel lblKita_pr = new JLabel("Kita");
+		JLabel lblKita_pr = new JLabel("<html><FONT SIZE=2>Kita</FONT></html>");
 		lblKita_pr.setBounds(9, 130, 46, 14);
 		frame.getContentPane().add(lblKita_pr);
 		
@@ -356,7 +359,8 @@ public class Gui {
 		
 		
 		JButton btnRechnungDrucken = new JButton("Rechnung Drucken");
-		btnRechnungDrucken.setBounds(9, 386, 123, 23);
+		btnRechnungDrucken.setFont(new Font("Dialog", Font.BOLD, 10));
+		btnRechnungDrucken.setBounds(9, 386, 139, 23);
 		frame.getContentPane().add(btnRechnungDrucken);
 		btnRechnungDrucken.addActionListener(new ActionListener() {
 			@Override
@@ -372,7 +376,8 @@ public class Gui {
 		
 		
 		JButton btnPreisErmitteln = new JButton("Preis Ermitteln");
-		btnPreisErmitteln.setBounds(9, 353, 123, 23);
+		btnPreisErmitteln.setFont(new Font("Dialog", Font.BOLD, 10));
+		btnPreisErmitteln.setBounds(9, 353, 139, 23);
 		frame.getContentPane().add(btnPreisErmitteln);
 		btnPreisErmitteln.addActionListener(new ActionListener() {
 			@Override
@@ -384,16 +389,18 @@ public class Gui {
 				}
 			}
 		});
+		Preis.setFont(new Font("Dialog", Font.BOLD, 10));
 		
-		Preis.setBounds(142, 353, 145, 23);
+		Preis.setBounds(155, 353, 132, 23);
 		frame.getContentPane().add(Preis);
+		btnPrüfenEintragen.setFont(new Font("Dialog", Font.BOLD, 10));
 		
 		
 		
 		btnPrüfenEintragen.setBounds(201, 147, 89, 23);
 		frame.getContentPane().add(btnPrüfenEintragen);
 		
-		JLabel lblAnzahl = new JLabel("Familienmitglieder");
+		JLabel lblAnzahl = new JLabel("<html><FONT SIZE=2>Familiengröße</FONT></html>");
 		lblAnzahl.setBounds(106, 74, 89, 14);
 		frame.getContentPane().add(lblAnzahl);
 		
@@ -402,7 +409,7 @@ public class Gui {
 		textFieldMitglieder.setBounds(106, 99, 86, 20);
 		frame.getContentPane().add(textFieldMitglieder);
 		
-		JLabel lblGeburtsdatum = new JLabel("Geburtsdatum");
+		JLabel lblGeburtsdatum = new JLabel("<html><FONT SIZE=2>Geburtsdatum</FONT></html>");
 		lblGeburtsdatum.setBounds(202, 18, 101, 14);
 		frame.getContentPane().add(lblGeburtsdatum);
 		
@@ -411,7 +418,7 @@ public class Gui {
 		textFieldDatum.setBounds(202, 43, 86, 20);
 		frame.getContentPane().add(textFieldDatum);
 		
-		JLabel lblBetreuung = new JLabel("Betreuung");
+		JLabel lblBetreuung = new JLabel("<html><FONT SIZE=2>Betreuung</FONT></html>");
 		lblBetreuung.setBounds(201, 74, 89, 14);
 		frame.getContentPane().add(lblBetreuung);
 		
