@@ -217,13 +217,14 @@ public class DBConnectorImpl {
 		return preis;
 	}
 	
-	//TODO gDatum aus Calendar!!!
+	
 	public void addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit) throws SQLException{
 		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie) values(NULL,?,?,?,?,?)";
+		String date = String.valueOf(gDatum.get(Calendar.DAY_OF_MONTH))+"."+String.valueOf(gDatum.get(Calendar.MONTH))+"."+String.valueOf(gDatum.get(Calendar.YEAR));
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setString(1, vorame);
 		ps.setString(2, nachname);
-		ps.setString(3, ""); // <----- hier!!!
+		ps.setString(3, date);
 		ps.setDouble(4, gehalt);
 		ps.setInt(5, anzahlFamMit);
 		ps.executeQuery();
