@@ -43,6 +43,7 @@ public class DBConnectorImpl {
 		try {
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
 			setConnection(DriverManager.getConnection(URL, getUser(), getPassword()));
+			getConn().setAutoCommit(false);
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 			return false;
@@ -256,7 +257,7 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
-	public boolean addKindToGruppe(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, Gruppe g){
+	public boolean addKindToGruppe(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, int gruppe_id){
 		Savepoint savep=null;
 		try{
 			savep = getConn().setSavepoint("Anfang");
@@ -270,7 +271,7 @@ public class DBConnectorImpl {
 			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
 			PreparedStatement ps = getConn().prepareStatement(query);
 			ps.setInt(1, kind_id);
-			ps.setInt(2, g.getId());
+			ps.setInt(2, gruppe_id);
 			ps.execute();
 			getConn().commit();
 		} catch(SQLException e){
@@ -282,6 +283,32 @@ public class DBConnectorImpl {
 			}
 		}
 		
+		return true;
+	}
+	
+	public boolean kindAbmelden(int kind_id, int gruppe_id){
+		Savepoint svp = null;
+		try {
+			svp = getConn().setSavepoint("KindAbmeldenAnfang");
+			String query_kg ="delete * from KindGruppe where Kind=? and Gruppe=?";
+			PreparedStatement ps = getConn().prepareStatement(query_kg);
+			ps.setInt(1, kind_id);
+			ps.setInt(2, gruppe_id);
+			if(!ps.execute()) return false;
+			String query_k = "delete * from Kind where ID=?";
+			PreparedStatement ps2 = getConn().prepareStatement(query_k);
+			ps2.setInt(1, kind_id);
+			if(!ps2.execute()) return false;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				getConn().rollback(svp);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return false;
+		}
 		return true;
 	}
 	
