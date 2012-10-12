@@ -157,7 +157,7 @@ public class DBConnectorImpl {
 	
 	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
 		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
-		String query = "SELECT Vorname, Nachname, Gehalt, ID FROM Kind k, KingGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
+		String query = "SELECT Vorname, Nachname, Gehalt, ID FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, gruppeID);
 		ResultSet rs = ps.executeQuery();
