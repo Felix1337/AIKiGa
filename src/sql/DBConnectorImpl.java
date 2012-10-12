@@ -188,15 +188,29 @@ public class DBConnectorImpl {
 	}
 	
 	public double getPriceByKindID(int id) throws SQLException{
-		String query = "select getPriceByID(?) as Preis from dual";
+//		String query = "select getPriceByID(?) as Preis from dual";
+//		PreparedStatement ps = getConn().prepareStatement(query);
+//		ps.setInt(1, id);
+//		ResultSet rs = ps.executeQuery();
+//		double preis = Double.NaN;
+//		while(rs.next()){
+//			preis = rs.getDouble("Preis");
+//		}
+//		return preis;
+		double preis = Double.NaN;
+		String query = "select Gehalt, Familie, Stunden from Kind k,KindGruppe kg, Gruppe g where k.ID=? and k.ID=kg.Kind and kg.Gruppe=g.ID";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, id);
 		ResultSet rs = ps.executeQuery();
-		double preis = -1.0;
+		double gehalt = Integer.MIN_VALUE;
+		int familie = Integer.MIN_VALUE;
+		int stunden = Integer.MIN_VALUE;
 		while(rs.next()){
-			preis = rs.getDouble("Preis");
+			gehalt = rs.getDouble("Gehalt");
+			familie = rs.getInt("Familie");
+			stunden = rs.getInt("Stunden");
 		}
-		return preis;
+		return getPriceByValues(familie, gehalt, stunden);
 	}
 	
 	public double getPriceByKind(Kind k) throws SQLException {
