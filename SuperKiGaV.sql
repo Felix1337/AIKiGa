@@ -233,7 +233,7 @@ end getPriceByID;
 /
 
 create or replace
-function getPriceByValues( Gehalt IN number, Stunden IN integer, Familie in integer) return number is
+function getPriceByValues( Gehalt IN number, Stunden IN number, Familie in number) return number is
   preis number(38,0);
   f varchar2(20);
   s varchar2(200);
@@ -246,7 +246,7 @@ begin
     when Familie>=6 then f:='Sechs';
   end case f;
   if Stunden>0 and Stunden<=4 then 
-    select * into preis from (select f from PreiseE where Netto>= Gehalt order by f asc) where rownum=1;
+    execute immediate 'select '||f||' from (select '|| f ||' from PreiseE where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
   elsif Stunden>4 and Stunden<=6 then
     execute immediate 'select '||f||' from (select '|| f ||' from PreiseD where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
   elsif Stunden>6 and Stunden<=8 then
