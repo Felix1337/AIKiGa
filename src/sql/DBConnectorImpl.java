@@ -294,11 +294,7 @@ public class DBConnectorImpl {
 			PreparedStatement ps = getConn().prepareStatement(query_kg);
 			ps.setInt(1, kind_id);
 			ps.setInt(2, gruppe_id);
-			if(!ps.execute()) return false;
-			String query_k = "delete * from Kind where ID=?";
-			PreparedStatement ps2 = getConn().prepareStatement(query_k);
-			ps2.setInt(1, kind_id);
-			if(!ps2.execute()) return false;
+			return ps.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
