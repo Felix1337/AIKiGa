@@ -277,7 +277,7 @@ public class Gui {
 //						gruppen = l.getGruppen(currentKita.getId());
 						
 						comboBoxGruppe_eintr.setEnabled(true);
-						comboBoxGruppe_eintr.setModel(new DefaultComboBoxModel(l.getGruppen(currentKita.getId()).values().toArray()));
+						comboBoxGruppe_eintr.setModel(new DefaultComboBoxModel(l.getGruppen(currentKita_eintr.getId()).values().toArray()));
 						comboBoxGruppe_eintr.insertItemAt(dummiGroup, 0);
 						comboBoxGruppe_eintr.setSelectedIndex(0);
 						currentGroup_eintr = dummiGroup;
