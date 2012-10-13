@@ -305,7 +305,6 @@ public class DBConnectorImpl {
 			}
 			return false;
 		}
-		return true;
 	}
 	
 }
