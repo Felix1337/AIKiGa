@@ -307,4 +307,27 @@ public class DBConnectorImpl {
 		}
 	}
 	
+	public Kind getKindByID(int kindID) throws SQLException{
+		String query = "select Vorname, Nachname, Gehalt FROM Kind where id=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kindID);
+		ResultSet rs = ps.executeQuery();
+		String vorname = "";
+		String nachname ="";
+		double gehalt = Double.NaN;
+		while(rs.next()){
+			vorname = rs.getString("Vorname");
+			nachname = rs.getString("Nachname");
+			gehalt = rs.getDouble("Gehalt");
+		}
+		return new KindImpl(vorname, nachname, gehalt, kindID);
+	}
+	
+	//TODO
+	public Map<Gruppe,Integer> getWartelistePosition(int kindID){
+		Map<Gruppe,Integer> result = new HashMap<Gruppe,Integer>();
+		String query = "select count(*) as Position, Gruppe from Warteliste where id<(select id from Warteliste where Kind=? and Gruppe=?) group by Gruppe";
+		return result;
+	}
+	
 }
