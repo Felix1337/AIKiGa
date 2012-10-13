@@ -87,7 +87,7 @@ public class DBConnectorImpl {
 	 */
 	
 	public Gruppe getGruppeByKindID(int id) throws SQLException{
-		String query_gruppeID = "select g.ID, g.Bezeichnung as Gbez, t.Bezeichnung as Tbez from KindGruppe, Gruppe g, Tageszeit t where Kind=? and Gruppe=g.ID and g.tageszeit = t.ID;";
+		String query_gruppeID = "select g.ID, g.Bezeichnung as Gbez, t.Bezeichnung as Tbez from KindGruppe, Gruppe g, Tageszeit t where Kind=? and Gruppe=g.ID and g.tageszeit = t.ID";
 		PreparedStatement ps = getConn().prepareStatement(query_gruppeID);
 		ps.setInt(1, id);
 		ResultSet rs = ps.executeQuery();
