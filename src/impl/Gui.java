@@ -54,8 +54,6 @@ public class Gui {
 	private JTextField textFieldGehalt;
 	private Logic l;
 	private ArrayList<Kita> kitas = new ArrayList<Kita>();
-//	private ArrayList<Gruppe> gruppen = new ArrayList<Gruppe>();
-//	private ArrayList<Kind> kinder = new ArrayList<Kind>();
 	private Gruppe dummiGroup = new GruppeImpl("",9999,"nachts");
 	private Kita dummiKita = new KitaImpl("",9999);
 	private Kind dummiKid = new KindImpl("","",0,9999);
@@ -198,7 +196,6 @@ public class Gui {
 					currentGroup = dummiGroup;
 					currentChild = dummiKid;
 					if(currentKita != null && currentKita != dummiKita){
-//						gruppen = l.getGruppen(currentKita.getId());
 						
 						comboBoxGruppen.setEnabled(true);
 						comboBoxKinder.setEnabled(true);
@@ -226,7 +223,6 @@ public class Gui {
 					Preis.setText("");
 					currentChild = dummiKid;
 					if(currentGroup != null && currentGroup != dummiGroup){
-//						gruppen = l.getGruppen(currentKita.getId());
 						
 						comboBoxKinder.setEnabled(true);
 						comboBoxKinder.setModel(new DefaultComboBoxModel(l.getKinder(currentGroup.getId()).values().toArray()));
@@ -274,7 +270,6 @@ public class Gui {
 					geprüft = false;
 					btnPrüfenEintragen.setText("Pr\u00FCfen");
 					if(currentKita_eintr != null && currentKita_eintr != dummiKita){
-//						gruppen = l.getGruppen(currentKita.getId());
 						
 						comboBoxGruppe_eintr.setEnabled(true);
 						comboBoxGruppe_eintr.setModel(new DefaultComboBoxModel(l.getGruppen(currentKita_eintr.getId()).values().toArray()));
@@ -408,6 +403,20 @@ public class Gui {
 		textFieldMitglieder.setColumns(10);
 		textFieldMitglieder.setBounds(106, 99, 86, 20);
 		frame.getContentPane().add(textFieldMitglieder);
+		textFieldMitglieder.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				warteschlange=false;
+				geprüft = false;
+				btnPrüfenEintragen.setText("Pr\u00FCfen");
+			}
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+			}
+		});
 		
 		JLabel lblGeburtsdatum = new JLabel("<html><FONT SIZE=2>Geburtsdatum</FONT></html>");
 		lblGeburtsdatum.setBounds(202, 18, 101, 14);
@@ -417,6 +426,20 @@ public class Gui {
 		textFieldDatum.setColumns(10);
 		textFieldDatum.setBounds(202, 43, 86, 20);
 		frame.getContentPane().add(textFieldDatum);
+		textFieldDatum.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				warteschlange=false;
+				geprüft = false;
+				btnPrüfenEintragen.setText("Pr\u00FCfen");
+			}
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+			}
+		});
 		
 		JLabel lblBetreuung = new JLabel("<html><FONT SIZE=2>Betreuung</FONT></html>");
 		lblBetreuung.setBounds(201, 74, 89, 14);
@@ -428,6 +451,24 @@ public class Gui {
 		textFieldDauer.setColumns(10);
 		textFieldDauer.setBounds(201, 99, 86, 20);
 		frame.getContentPane().add(textFieldDauer);
+		textFieldDauer.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				warteschlange=false;
+				geprüft = false;
+				btnPrüfenEintragen.setText("Pr\u00FCfen");
+			}
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+			}
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+			}
+		});
+		
+		
+		
+		
 		btnPrüfenEintragen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -445,8 +486,21 @@ public class Gui {
 							}catch(Exception ex){
 								geprüft = false;
 								lblMeldung.setText("Ungültiges Datum");
+								return;
 							}
-							
+							if(Integer.parseInt(textFieldMitglieder.getText()) <2){
+								geprüft = false;
+								lblMeldung.setText("Mindestens 2 Familienmitglieder nötig.");
+								return;
+							}else if(Integer.parseInt(textFieldMitglieder.getText()) >6){
+								textFieldMitglieder.setText("6");
+							}
+							int temp =Integer.parseInt(textFieldDauer.getText());
+							if(!(temp == 4 || temp == 6 ||temp == 8 ||temp == 10 ||temp == 12)){
+								geprüft = false;
+								lblMeldung.setText("Betreuung muss 4,6,8,10 oder 12 Stunden betragen.");
+								return;
+							}
 						if(textFieldVorname.getText() != null && textFieldVorname.getText() != "" &&
 								textFieldNachname.getText() != null && textFieldNachname.getText() != "" &&
 								Double.parseDouble(textFieldGehalt.getText()) >= 0 && 
