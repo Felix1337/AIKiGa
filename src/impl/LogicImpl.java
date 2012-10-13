@@ -142,16 +142,14 @@ public class LogicImpl implements Logic {
 
 	@Override
 	public double preisErmitteln(Integer KindId) {
-		double res = Double.NaN;
-		try (Statement st = conn.createStatement()) {
-			String s = "select getPriceByID(" + KindId + ") as Price from dual";
-			ResultSet rs = st.executeQuery(s);
-			res = rs.getDouble(1);
+		double preis = Double.NaN;
+		try {
+			preis = dbconncetor.getPriceByKindID(KindId);
 		} catch (SQLException e) {
-
-		} finally {
-			return res;
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		return preis;
 	}
 
 	@Override
