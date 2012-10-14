@@ -13,8 +13,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -323,10 +325,43 @@ public class DBConnectorImpl {
 		return new KindImpl(vorname, nachname, gehalt, kindID);
 	}
 	
-	//TODO
-	public Map<Gruppe,Integer> getWartelistePosition(int kindID){
+	public Gruppe getGruppeByID(int gruppe_id) throws SQLException{
+		String query = "SELECT Gruppe.Bezeichnung as GBez, Tageszeit.Bezeichnung as TBez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Gruppe.ID = ?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppe_id);
+		ResultSet rs = ps.executeQuery();
+		String bezeichnung = "";
+		String tageszeit = "";
+		while(rs.next()){
+			bezeichnung = rs.getString("GBez");
+			tageszeit = rs.getString("TBez");
+		}
+		return new GruppeImpl(bezeichnung, gruppe_id, tageszeit);
+	}
+	
+	
+	public Map<Gruppe,Integer> getWartelistePosition(int kindID) throws SQLException{
 		Map<Gruppe,Integer> result = new HashMap<Gruppe,Integer>();
-		String query = "select count(*) as Position, Gruppe from Warteliste where id<(select id from Warteliste where Kind=? and Gruppe=?) group by Gruppe";
+		String query_gruppen = "select Gruppe from Warteliste where Kind=?";
+		List<Integer> gruppen = new ArrayList<Integer>();
+		PreparedStatement ps = getConn().prepareStatement(query_gruppen);
+		ps.setInt(1, kindID);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			gruppen.add(rs.getInt("Gruppe"));
+		}
+		System.out.println(gruppen.toString());
+		for(Integer gruppe: gruppen){
+			String query = "select count(*) as Position from Warteliste where Gruppe=? and ID<(select ID from Warteliste where Kind=? and Gruppe=?)";
+			PreparedStatement ps2 = getConn().prepareStatement(query);
+			ps2.setInt(1, gruppe);
+			ps2.setInt(2, kindID);
+			ps2.setInt(3, gruppe);
+			ResultSet rs2 = ps2.executeQuery();
+			while(rs2.next()){
+				result.put(getGruppeByID(gruppe), rs2.getInt("Position"));
+			}
+		}
 		return result;
 	}
 	
