@@ -15,6 +15,9 @@ public interface Logic {
 	
 	//Gibt eine ArrayListKitaValueClass> aller Kitas zurück
 	public Map<Integer,Kita> getKitas();
+	
+	//Gibt für eine KindID den Platz des Kindes als Integer zurück
+	public int getPlatzByKindID(int KindID);
 
 	//Gibt eine ArrayList<GruppeValueClass> aller Gruppen zurück
 	public Map<Integer,Gruppe> getGruppen(Integer KitaId);
