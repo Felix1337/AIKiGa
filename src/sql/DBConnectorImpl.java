@@ -325,6 +325,10 @@ public class DBConnectorImpl {
 		return new KindImpl(vorname, nachname, gehalt, kindID);
 	}
 	
+	public int getPlatzByKindID(int kindID) throws SQLException{
+		return 0;
+	}
+	
 	public Gruppe getGruppeByID(int gruppe_id) throws SQLException{
 		String query = "SELECT Gruppe.Bezeichnung as GBez, Tageszeit.Bezeichnung as TBez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Gruppe.ID = ?";
 		PreparedStatement ps = getConn().prepareStatement(query);
