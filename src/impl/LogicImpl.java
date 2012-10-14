@@ -165,4 +165,15 @@ public class LogicImpl implements Logic {
 		return Double.NaN;
 	}
 
+	@Override
+	public int getPlatzByKindID(int KindID) {
+		try {
+			return dbconncetor.getPlatzByKindID(KindID);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
 }

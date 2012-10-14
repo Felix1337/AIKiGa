@@ -4,6 +4,8 @@ import interfaces.Logic;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.NumberFormat;
+
 import javax.swing.*;
 
 public class ElternGUI {
@@ -11,7 +13,7 @@ public class ElternGUI {
 	private JFrame frame;
 	private JTextField textInsertKindID;
 	private Logic l;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -39,12 +41,12 @@ public class ElternGUI {
 	public ElternGUI() {
 
 		l = new LogicImpl();
-		
+
 		/**
 		 * Initialize the contents of the frame.
 		 */
 		frame = new JFrame();
-		frame.setBounds(100, 100, 319, 458);
+		frame.setBounds(100, 100, 319, 150);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
@@ -55,17 +57,17 @@ public class ElternGUI {
 
 		textInsertKindID = new JTextField();
 		textInsertKindID.setColumns(10);
-		textInsertKindID.setBounds(9, 43, 86, 20);
+		textInsertKindID.setBounds(9, 43, 106, 20);
 		frame.getContentPane().add(textInsertKindID);
 
 		final JLabel lblNummer = new JLabel(
 				"<html><FONT SIZE=2>-</FONT></html>");
-		lblNummer.setBounds(193, 43, 89, 14);
+		lblNummer.setBounds(213, 43, 89, 14);
 		frame.getContentPane().add(lblNummer);
 
 		final JLabel lblPlatz = new JLabel(
 				"<html><FONT SIZE=2>Platz des Kindes:</FONT></html>");
-		lblPlatz.setBounds(106, 43, 89, 14);
+		lblPlatz.setBounds(126, 43, 89, 14);
 		frame.getContentPane().add(lblPlatz);
 
 		JButton btnKindByID = new JButton("Platz ermitteln");
@@ -76,8 +78,15 @@ public class ElternGUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand() == "Platz ermitteln") {
-					l.getPlatzByKindID(0);
-					lblNummer.setText("<html><FONT SIZE=2>"+ textInsertKindID.getText() + "</FONT></html>");
+					try {
+						lblNummer.setText("<html><FONT SIZE=2>"
+								+ l.getPlatzByKindID(Integer
+										.parseInt(textInsertKindID.getText()))
+								+ "</FONT></html>");
+					} catch (Exception ex) {
+						lblNummer.setText("<html><FONT SIZE=2>-</FONT></html>");
+						textInsertKindID.setText("ung\u00FCltige KindID");
+					}
 				}
 			}
 		});
