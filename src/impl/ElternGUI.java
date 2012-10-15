@@ -46,7 +46,7 @@ public class ElternGUI {
 		 * Initialize the contents of the frame.
 		 */
 		frame = new JFrame();
-		frame.setBounds(100, 100, 319, 150);
+		frame.setBounds(100, 100, 319, 350);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 
@@ -67,9 +67,13 @@ public class ElternGUI {
 
 		final JLabel lblPlatz = new JLabel(
 				"<html><FONT SIZE=2>Platz des Kindes:</FONT></html>");
-		lblPlatz.setBounds(126, 43, 89, 14);
+		lblPlatz.setBounds(9, 104, 89, 14);
 		frame.getContentPane().add(lblPlatz);
 
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(9, 140, 160, 115);
+		frame.getContentPane().add(scrollPane);
+		
 		JButton btnKindByID = new JButton("Platz ermitteln");
 		btnKindByID.setFont(new Font("Dialog", Font.BOLD, 10));
 		btnKindByID.setBounds(9, 72, 139, 23);
