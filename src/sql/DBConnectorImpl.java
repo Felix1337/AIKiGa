@@ -325,6 +325,7 @@ public class DBConnectorImpl {
 		return new KindImpl(vorname, nachname, gehalt, kindID);
 	}
 	
+	@Deprecated
 	public int getPlatzByKindID(int kindID) throws SQLException{
 		return 0;
 	}
@@ -365,6 +366,18 @@ public class DBConnectorImpl {
 			while(rs2.next()){
 				result.put(getGruppeByID(gruppe), rs2.getInt("Position"));
 			}
+		}
+		return result;
+	}
+	
+	public int getWartelisteLaenge(int gruppe_id) throws SQLException{
+		int result = -1;
+		String query = "select count(*) as Anzahl from Warteliste where Gruppe=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppe_id);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			result = rs.getInt("Anzahl");
 		}
 		return result;
 	}

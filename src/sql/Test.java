@@ -19,6 +19,7 @@ public class Test {
 		System.out.println(d.getGruppeByKindID(1)); // Katzen
 		System.out.println(d.getKindByID(1).getVorname());
 		System.out.println(d.getWartelistePosition(5));
+		System.out.println(d.getWartelisteLaenge(1));
 		d.disconnect();
 
 	}
