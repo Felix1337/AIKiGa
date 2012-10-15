@@ -166,14 +166,14 @@ public class LogicImpl implements Logic {
 	}
 
 	@Override
-	public int getPlatzByKindID(int KindID) {
+	public Map<Gruppe,Integer> getWartelistePosition(int KindID) {
 		try {
-			return dbconncetor.getPlatzByKindID(KindID);
+			return dbconncetor.getWartelistePosition(KindID);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return 0;
+		return null;
 	}
 
 }

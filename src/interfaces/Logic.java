@@ -17,7 +17,7 @@ public interface Logic {
 	public Map<Integer,Kita> getKitas();
 	
 	//Gibt für eine KindID den Platz des Kindes als Integer zurück
-	public int getPlatzByKindID(int KindID);
+	public Map<Gruppe,Integer> getWartelistePosition(int KindID);
 
 	//Gibt eine ArrayList<GruppeValueClass> aller Gruppen zurück
 	public Map<Integer,Gruppe> getGruppen(Integer KitaId);
