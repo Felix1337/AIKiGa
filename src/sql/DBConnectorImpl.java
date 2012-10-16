@@ -232,6 +232,13 @@ public class DBConnectorImpl {
 		ps.setInt(5, anzahlFamMit);
 		ps.executeQuery();
 		getConn().commit();
+		String query_kind_id = "select max(id) from Kind";
+		int id = -1;
+		ResultSet rs =executeStatement(query_kind_id);
+		while(rs.next()){
+			id = rs.getInt("ID");
+		}
+		return getKindByID(id);
 	}
 	
 	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
