@@ -381,7 +381,6 @@ public class DBConnectorImpl {
 		while(rs.next()){
 			gruppen.add(rs.getInt("Gruppe"));
 		}
-		System.out.println(gruppen.toString());
 		for(Integer gruppe: gruppen){
 			String query = "select count(*) as Position from Warteliste where Gruppe=? and ID<=(select ID from Warteliste where Kind=? and Gruppe=?)";
 			PreparedStatement ps2 = getConn().prepareStatement(query);
