@@ -284,14 +284,22 @@ public class DBConnectorImpl {
 //			while(rs.next()){
 //				kind_id = rs.getInt("ID");
 //			}
-			int preis = (int) getPriceByKindID(k.getId());
+			//String query = "insert into KindGruppe(Kind,Gruppe,Preis) values("+k.getId()+","+gruppe_id+","+preis+")";
+//			System.out.println(query);
+//			executeStatement(query);
 			String query = "insert into KindGruppe(Kind,Gruppe,Preis) values(?,?,?)";
 			PreparedStatement ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
 			ps.setInt(2, gruppe_id);
-			ps.setInt(3, preis);
+			ps.setDouble(3, 1.0);
 			ps.execute();
-			System.out.println("test");
+			double preis = getPriceByKindID(k.getId());
+			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
+			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
+			ps2.setDouble(1, preis);
+			ps2.setInt(2, k.getId());
+			ps2.setDouble(3, gruppe_id);
+			ps2.execute();
 			getConn().commit();
 		} catch(SQLException e){
 			try {
