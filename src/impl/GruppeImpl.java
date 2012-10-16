@@ -14,6 +14,11 @@ public class GruppeImpl implements Gruppe{
 		this.id = id;
 		this.zeit = zeit;
 	}
+	
+	public GruppeImpl( int id) {
+	
+		this.id = id;
+	}
 	@Override
 	public String getName() {
 		return name;
