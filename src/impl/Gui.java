@@ -482,7 +482,7 @@ public class Gui {
 								formatter = new SimpleDateFormat("MM.dd.yy");
 								date = formatter.parse(textFieldDatum.getText());
 								calendar = Calendar.getInstance();
-								//calendar.setTime(date);
+								calendar.setTime(date);
 							}catch(Exception ex){
 								geprüft = false;
 								lblMeldung.setText("Ungültiges Datum");
