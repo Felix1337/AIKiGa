@@ -223,6 +223,7 @@ public class DBConnectorImpl {
 	
 	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit) throws SQLException{
 		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie) values(NULL,?,?,?,?,?)";
+		//System.out.println(gDatum == null);
 		//String date = String.valueOf(gDatum.getTime().getDay())+"."+String.valueOf(gDatum.getTime().getMonth())+"."+String.valueOf(gDatum.getTime().getYear());
 		String date = "12.10.1987";
 		PreparedStatement ps = getConn().prepareStatement(query);
