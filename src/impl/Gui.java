@@ -68,9 +68,9 @@ public class Gui {
 	final JComboBox comboBoxGruppe_eintr = new JComboBox();
 	final JComboBox comboBoxKita_eintr = new JComboBox();
 	final JList list = new JList();
-	private boolean geprüft =false;
+	private boolean geprÃ¼ft =false;
 	private boolean warteschlange =false;
-	final JButton btnPrüfenEintragen = new JButton("Pr\u00FCfen");
+	final JButton btnPrÃ¼fenEintragen = new JButton("Pr\u00FCfen");
 	JLabel Preis = new JLabel("");
 	private JTextField textFieldMitglieder;
 	private JTextField textFieldDatum;
@@ -267,8 +267,8 @@ public class Gui {
 					comboBoxGruppe_eintr.removeAllItems();
 					comboBoxGruppe_eintr.setEnabled(false);
 					warteschlange = false;
-					geprüft = false;
-					btnPrüfenEintragen.setText("Pr\u00FCfen");
+					geprÃ¼ft = false;
+					btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 					if(currentKita_eintr != null && currentKita_eintr != dummiKita){
 						
 						comboBoxGruppe_eintr.setEnabled(true);
@@ -289,8 +289,8 @@ public class Gui {
 				if(e.getActionCommand() == "comboBoxChanged" && ((Gruppe)comboBoxGruppe_eintr.getSelectedItem()) != currentGroup_eintr){
 					currentGroup_eintr = ((Gruppe)comboBoxGruppe_eintr.getSelectedItem());
 					warteschlange = false;
-					geprüft = false;
-					btnPrüfenEintragen.setText("Pr\u00FCfen");
+					geprÃ¼ft = false;
+					btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 				}
 			}
 		});
@@ -303,8 +303,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -322,8 +322,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -341,8 +341,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -379,7 +379,7 @@ public class Gui {
 			public void actionPerformed(ActionEvent e) {
 				if(e.getActionCommand() == "Preis Ermitteln"){
 					if(currentChild.getId() != dummiKid.getId()){
-						Preis.setText("Preis: " + String.valueOf(l.preisErmitteln(currentChild.getId())) + "€");
+						Preis.setText("Preis: " + String.valueOf(l.preisErmitteln(currentChild.getId())) + "Ã¼");
 					}
 				}
 			}
@@ -388,14 +388,14 @@ public class Gui {
 		
 		Preis.setBounds(155, 353, 132, 23);
 		frame.getContentPane().add(Preis);
-		btnPrüfenEintragen.setFont(new Font("Dialog", Font.BOLD, 10));
+		btnPrÃ¼fenEintragen.setFont(new Font("Dialog", Font.BOLD, 10));
 		
 		
 		
-		btnPrüfenEintragen.setBounds(201, 147, 89, 23);
-		frame.getContentPane().add(btnPrüfenEintragen);
+		btnPrÃ¼fenEintragen.setBounds(201, 147, 89, 23);
+		frame.getContentPane().add(btnPrÃ¼fenEintragen);
 		
-		JLabel lblAnzahl = new JLabel("<html><FONT SIZE=2>Familiengröße</FONT></html>");
+		JLabel lblAnzahl = new JLabel("<html><FONT SIZE=2>FamiliengrÃ¼Ã¼e</FONT></html>");
 		lblAnzahl.setBounds(106, 74, 89, 14);
 		frame.getContentPane().add(lblAnzahl);
 		
@@ -407,8 +407,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -430,8 +430,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -455,8 +455,8 @@ public class Gui {
 			@Override
 			public void keyTyped(KeyEvent arg0) {
 				warteschlange=false;
-				geprüft = false;
-				btnPrüfenEintragen.setText("Pr\u00FCfen");
+				geprÃ¼ft = false;
+				btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 			}
 			@Override
 			public void keyPressed(KeyEvent arg0) {
@@ -469,35 +469,35 @@ public class Gui {
 		
 		
 		
-		btnPrüfenEintragen.addActionListener(new ActionListener() {
+		btnPrÃ¼fenEintragen.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(e.getActionCommand() == "Prüfen" || e.getActionCommand() == "Eintragen"){
+				if(e.getActionCommand() == "PrÃ¼fen" || e.getActionCommand() == "Eintragen"){
 					DateFormat formatter;
 					Date date;
 					Calendar calendar = null;
-					if(!geprüft){
+					if(!geprÃ¼ft){
 						try{
 							try{	
 								formatter = new SimpleDateFormat("MM.dd.yy");
 								date = formatter.parse(textFieldDatum.getText());
 								calendar = Calendar.getInstance();
-								calendar.setTime(date);
+								//calendar.setTime(date);
 							}catch(Exception ex){
-								geprüft = false;
-								lblMeldung.setText("Ungültiges Datum");
+								geprÃ¼ft = false;
+								lblMeldung.setText("UngÃ¼ltiges Datum");
 								return;
 							}
 							if(Integer.parseInt(textFieldMitglieder.getText()) <2){
-								geprüft = false;
-								lblMeldung.setText("Mindestens 2 Familienmitglieder nötig.");
+								geprÃ¼ft = false;
+								lblMeldung.setText("Mindestens 2 Familienmitglieder nÃ¼tig.");
 								return;
 							}else if(Integer.parseInt(textFieldMitglieder.getText()) >6){
 								textFieldMitglieder.setText("6");
 							}
 							int temp =Integer.parseInt(textFieldDauer.getText());
 							if(!(temp == 4 || temp == 6 ||temp == 8 ||temp == 10 ||temp == 12)){
-								geprüft = false;
+								geprÃ¼ft = false;
 								lblMeldung.setText("Betreuung muss 4,6,8,10 oder 12 Stunden betragen.");
 								return;
 							}
@@ -510,45 +510,45 @@ public class Gui {
 								double preis = l.preisErmitteln(Integer.parseInt(textFieldMitglieder.getText()), Double.parseDouble(textFieldGehalt.getText()), Integer.parseInt(textFieldDauer.getText()));
 								if(l.isPlatzFrei(currentKita_eintr.getId(),currentGroup_eintr.getId())){
 									
-									geprüft = true;
-									lblMeldung.setText("Preis: " + preis + "€. Platz verfügbar.");
+									geprÃ¼ft = true;
+									lblMeldung.setText("Preis: " + preis + "Ã¼. Platz verfÃ¼gbar.");
 									warteschlange = false;
 								}else{
-									geprüft = true;
-									lblMeldung.setText("Preis: " + preis + "€. Kein Platz verfügbar, Kind in Warteschlange einreihen?");
+									geprÃ¼ft = true;
+									lblMeldung.setText("Preis: " + preis + "Ã¼. Kein Platz verfÃ¼gbar, Kind in Warteschlange einreihen?");
 									warteschlange = true;
 								}
 							}else{
-								geprüft = false;
-								lblMeldung.setText("Bitte Gruppe auswählen.");
+								geprÃ¼ft = false;
+								lblMeldung.setText("Bitte Gruppe auswÃ¼hlen.");
 							}
 						}else{
-							geprüft = false;
-							lblMeldung.setText("Ungültige Angaben");
+							geprÃ¼ft = false;
+							lblMeldung.setText("UngÃ¼ltige Angaben");
 						}	
-						if(geprüft)
-							btnPrüfenEintragen.setText("Eintragen");
+						if(geprÃ¼ft)
+							btnPrÃ¼fenEintragen.setText("Eintragen");
 						else
-							btnPrüfenEintragen.setText("Pr\u00FCfen");
+							btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 						return;
 						}catch(Exception ec){
-							geprüft = false;
-							lblMeldung.setText("Ungültige Angaben");
+							geprÃ¼ft = false;
+							lblMeldung.setText("UngÃ¼ltige Angaben");
 						}
 					}
 					
 					
-					if(geprüft){
+					if(geprÃ¼ft){
 						if(l.isPlatzFrei(currentKita_eintr.getId(),currentGroup_eintr.getId())){
 							l.kindEintragen(textFieldVorname.getText(),textFieldNachname.getText(),calendar,currentGroup_eintr.getId(), warteschlange,Double.parseDouble(textFieldGehalt.getText()),Integer.parseInt(textFieldMitglieder.getText()));
 							warteschlange = false;
-							geprüft = false;
-							btnPrüfenEintragen.setText("Pr\u00FCfen");
+							geprÃ¼ft = false;
+							btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 							lblMeldung.setText("Kind Eingetragen.");
 						}else{
-							lblMeldung.setText("Platz nicht mehr verfügbar");
-							geprüft = false;
-							btnPrüfenEintragen.setText("Pr\u00FCfen");
+							lblMeldung.setText("Platz nicht mehr verfÃ¼gbar");
+							geprÃ¼ft = false;
+							btnPrÃ¼fenEintragen.setText("Pr\u00FCfen");
 							
 						}
 					}
