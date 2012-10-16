@@ -21,8 +21,8 @@ import java.util.Map;
 
 /*
  *	@author Anton Romanov
- *	@date 11.10.2012
- *	@version 1.2
+ *	@date 16.10.2012
+ *	@version 1.3
  */
 
 public class DBConnectorImpl {
@@ -223,7 +223,8 @@ public class DBConnectorImpl {
 	
 	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit) throws SQLException{
 		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie) values(NULL,?,?,?,?,?)";
-		String date = String.valueOf(gDatum.get(Calendar.DAY_OF_MONTH))+"."+String.valueOf(gDatum.get(Calendar.MONTH))+"."+String.valueOf(gDatum.get(Calendar.YEAR));
+		//String date = String.valueOf(gDatum.getTime().getDay())+"."+String.valueOf(gDatum.getTime().getMonth())+"."+String.valueOf(gDatum.getTime().getYear());
+		String date = "12.10.1987";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setString(1, vorame);
 		ps.setString(2, nachname);
@@ -232,7 +233,7 @@ public class DBConnectorImpl {
 		ps.setInt(5, anzahlFamMit);
 		ps.executeQuery();
 		getConn().commit();
-		String query_kind_id = "select max(id) from Kind";
+		String query_kind_id = "select max(id) as ID from Kind";
 		int id = -1;
 		ResultSet rs =executeStatement(query_kind_id);
 		while(rs.next()){
@@ -267,9 +268,15 @@ public class DBConnectorImpl {
 	}
 	
 	public boolean addKindToGruppe(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, int gruppe_id){
-		Savepoint savep=null;
+		//Savepoint savep = null;
+		try {
+			executeStatement("SAVEPOINT anfang");
+		} catch (SQLException e2) {
+			System.out.println("nein");
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		try{
-			savep = getConn().setSavepoint("Anfang");
 			Kind k = addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
 //			String kind_query = "select max(ID) as ID from Kind";
 //			ResultSet rs = executeStatement(kind_query);
@@ -277,15 +284,18 @@ public class DBConnectorImpl {
 //			while(rs.next()){
 //				kind_id = rs.getInt("ID");
 //			}
-			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
+			int preis = (int) getPriceByKindID(k.getId());
+			String query = "insert into KindGruppe(Kind,Gruppe,Preis) values(?,?,?)";
 			PreparedStatement ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
 			ps.setInt(2, gruppe_id);
+			ps.setInt(3, preis);
 			ps.execute();
+			System.out.println("test");
 			getConn().commit();
 		} catch(SQLException e){
 			try {
-				getConn().rollback(savep);
+				executeStatement("rollback to anfang");
 				return false;
 			} catch (SQLException e1) {
 				e1.printStackTrace();
