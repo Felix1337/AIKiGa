@@ -270,16 +270,16 @@ public class DBConnectorImpl {
 		Savepoint savep=null;
 		try{
 			savep = getConn().setSavepoint("Anfang");
-			addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
-			String kind_query = "select max(ID) as ID from Kind";
-			ResultSet rs = executeStatement(kind_query);
-			int kind_id = -1;
-			while(rs.next()){
-				kind_id = rs.getInt("ID");
-			}
+			Kind k = addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
+//			String kind_query = "select max(ID) as ID from Kind";
+//			ResultSet rs = executeStatement(kind_query);
+//			int kind_id = -1;
+//			while(rs.next()){
+//				kind_id = rs.getInt("ID");
+//			}
 			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
 			PreparedStatement ps = getConn().prepareStatement(query);
-			ps.setInt(1, kind_id);
+			ps.setInt(1, k.getId());
 			ps.setInt(2, gruppe_id);
 			ps.execute();
 			getConn().commit();
