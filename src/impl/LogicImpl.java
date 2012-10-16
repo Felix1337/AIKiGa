@@ -76,7 +76,7 @@ public class LogicImpl implements Logic {
 		try {
 			if(dbconncetor.isPlatzFrei(GruppeId)){
 				dbconncetor.addKindToGruppe(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, GruppeId);
-			} else {
+			} else if(warteschlange){
 				Kind k = dbconncetor.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder);
 				Gruppe g = dbconncetor.getGruppeByID(GruppeId);
 				dbconncetor.eintragenInWarteliste(k, g);
