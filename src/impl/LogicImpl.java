@@ -102,33 +102,34 @@ public class LogicImpl implements Logic {
 		
 		
 		//get personal data for KindId
-		String vname = "";
-		String nname = "";
-		try (Statement s = conn.createStatement()) {
-			String query = "SELECT Vorname, Nachname, FROM Kind Where KindId="
-					+ KindId;
-			ResultSet rs = s.executeQuery(query);
-			while (rs.next()) {
-				vname = rs.getString("Vorname");
-				nname = rs.getString("Nachname");
-			}
-		} catch (SQLException e) {
-			System.err.println("Error: " + e.getMessage());
+		Kind k = null;
+		Gruppe g = null;
+		Kita kita = null;
+		try {
+			k = dbconncetor.getKindByID(KindId);
+			g = dbconncetor.getGruppeByKind(k);
+			kita = dbconncetor.getKitaByKind(k);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
-
 		//get current date
-		Date dt = new Date();
+		Calendar c = Calendar.getInstance();
 
 		//get rechnungsbetrag for current child
 		double rechnungsbetrag = preisErmitteln(KindId);
 
 		try {			
 			// Create file
-			FileWriter fstream = new FileWriter("out.txt");
+			FileWriter fstream = new FileWriter(k.getVorname()+k.getNachname()+".txt");
 			BufferedWriter out = new BufferedWriter(fstream);
-			out.write("Rechnung f�r " + vname + " " + nname);
+			out.write("Rechnung für " + k.getVorname() + " " + k.getNachname());
 			out.newLine();
-			out.write("Rechnungsdatum: " + dt);
+			out.write("Kita: " + k.getNachname());
+			out.newLine();
+			out.write("Gruppe: "+g.getName()+"("+g.getId()+")");
+			out.newLine();
+			out.write("Rechnungsdatum: " + c.getTime());
 			out.newLine();
 			out.write("Rechnungsbetrag: " + rechnungsbetrag);
 
