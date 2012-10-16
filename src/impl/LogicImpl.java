@@ -73,27 +73,20 @@ public class LogicImpl implements Logic {
 	public boolean kindEintragen(String vorname, String nachname,
 			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange,
 			double gehalt, int familienmitglieder) {
-		try (Statement st = conn.createStatement();
-				Statement st2 = conn.createStatement()) {
-			String query = "INSERT INTO Kind VALUES(NULL, " + vorname + ", "
-					+ nachname + ", to_date(" + geburtsdatum
-					+ ", 'DD.MM.YYYY'), " + gehalt + ");";
-			st.executeQuery(query);
-			String query2 = "INSERT INTO KindGruppe values((select max(ID) from Kind),"
-					+ GruppeId + ")";
-			st2.executeQuery(query2);
-			return true;
-		} catch (SQLException e) {
-			try (Statement st = conn.createStatement()) {
-				String query = "INSERT INTO Warteliste values((select max(ID) from Kind),"
-						+ GruppeId + ")";
-			} catch (SQLException ex) {
-				conn.rollback();
-				System.out.println("ERROR");
-			} finally {
-				return false;
+		try {
+			if(dbconncetor.isPlatzFrei(GruppeId)){
+				dbconncetor.addKindToGruppe(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, GruppeId);
+			} else {
+				Kind k = dbconncetor.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder);
+				Gruppe g = dbconncetor.getGruppeByID(GruppeId);
+				dbconncetor.eintragenInWarteliste(k, g);
 			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	@Override
