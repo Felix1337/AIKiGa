@@ -118,11 +118,11 @@ public class LogicImpl implements Logic {
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write("Rechnung für " + k.getVorname() + " " + k.getNachname());
 			out.newLine();
-			out.write("Kita: " + k.getNachname());
+			out.write("Kita: " + kita.getName());
 			out.newLine();
 			out.write("Gruppe: "+g.getName()+"("+g.getId()+")");
 			out.newLine();
-			out.write("Rechnungsdatum: " + c.getTime());
+			out.write("Rechnungsdatum: " +  String.valueOf(c.get(Calendar.DAY_OF_MONTH))+"."+String.valueOf(c.get(Calendar.MONTH))+"."+String.valueOf(c.get(Calendar.YEAR)));
 			out.newLine();
 			out.write("Rechnungsbetrag: " + rechnungsbetrag);
 
