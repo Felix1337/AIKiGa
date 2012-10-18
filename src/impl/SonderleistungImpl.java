@@ -8,7 +8,7 @@ public class SonderleistungImpl implements Sonderleistung {
 	private int id;
 	private double preis;
 	
-	private SonderleistungImpl(String bez, int id, double preis){
+	public SonderleistungImpl(String bez, int id, double preis){
 		this.id = id;
 		this.bezeichnung = bez;
 		this.preis = preis;

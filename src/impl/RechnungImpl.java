@@ -32,9 +32,9 @@ public class RechnungImpl implements Rechnung {
 	@Override
 	public double getBetrag(){
 		double result = this.betrag;
-		for(Sonderleistung s : getSonderleistungen()){
-			result+=s.getPreis();
-		}
+//		for(Sonderleistung s : getSonderleistungen()){
+//			result+=s.getPreis();
+//		}
 		return result;
 	}
 	

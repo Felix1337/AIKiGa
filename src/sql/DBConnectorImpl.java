@@ -2,9 +2,13 @@ package sql;
 import impl.GruppeImpl;
 import impl.KindImpl;
 import impl.KitaImpl;
+import impl.RechnungImpl;
+import impl.SonderleistungImpl;
 import interfaces.Gruppe;
 import interfaces.Kind;
 import interfaces.Kita;
+import interfaces.Rechnung;
+import interfaces.Sonderleistung;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,8 +17,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -253,9 +261,24 @@ public class DBConnectorImpl {
 	}
 	
 	public boolean addKindToGruppe(Kind k, Gruppe g){
-		String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
+		
 		PreparedStatement ps;
 		try {
+			int rechnung_id = -1;
+			String query_rechnung_id = "select max(id) as ID from the (select Rechnungen from KindGruppe)";
+			ResultSet rs = executeStatement(query_rechnung_id);
+			while(rs.next()){
+				rechnung_id = rs.getInt("ID")+1;
+			}
+			Calendar now = Calendar.getInstance();
+			String query_kind_familie = "select familie from Kind where ID="+k.getId();
+			ResultSet rs_temp = executeStatement(query_kind_familie);
+			int familie=1;
+			while(rs.next()){
+				familie = rs_temp.getInt("familie");
+			}
+			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(familie, k.getGehalt(), 4)+")),NULL)";
+			System.out.println(query);
 			ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
 			ps.setInt(2, g.getId());
@@ -288,19 +311,18 @@ public class DBConnectorImpl {
 			//String query = "insert into KindGruppe(Kind,Gruppe,Preis) values("+k.getId()+","+gruppe_id+","+preis+")";
 //			System.out.println(query);
 //			executeStatement(query);
-			String query = "insert into KindGruppe(Kind,Gruppe,Preis) values(?,?,?)";
+			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
 			PreparedStatement ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
 			ps.setInt(2, gruppe_id);
-			ps.setDouble(3, 1.0);
 			ps.execute();
-			double preis = getPriceByKindID(k.getId());
-			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
-			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
-			ps2.setDouble(1, preis);
-			ps2.setInt(2, k.getId());
-			ps2.setDouble(3, gruppe_id);
-			ps2.execute();
+//			double preis = getPriceByKindID(k.getId());
+//			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
+//			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
+//			ps2.setDouble(1, preis);
+//			ps2.setInt(2, k.getId());
+//			ps2.setDouble(3, gruppe_id);
+//			ps2.execute();
 			getConn().commit();
 		} catch(SQLException e){
 			try {
@@ -405,6 +427,80 @@ public class DBConnectorImpl {
 			result = rs.getInt("Anzahl");
 		}
 		return result;
+	}
+	
+	public List<Rechnung> getRechungByKindID(int kind_id) throws SQLException{
+		List<Rechnung> result = new ArrayList<Rechnung>();
+		String query = "select ID from the(select Rechnungen from KindGruppe where Kind=?)";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kind_id);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			result.add(getRechnungByID(rs.getInt("ID")));
+		}
+		return result;
+	}
+	
+	public Rechnung getRechnungByID(int rechnung_id) throws SQLException{
+		String query = "select * from the(select Rechnungen from KindGruppe) where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, rechnung_id);
+		ResultSet rs = ps.executeQuery();
+		int id = -1;
+		Calendar c = Calendar.getInstance();
+		double betrag = Double.NaN;
+		while(rs.next()){
+			id = rs.getInt("ID");
+			c.setTime(rs.getDate("Datum"));
+			betrag = rs.getDouble("Betrag");
+		}
+		Kind kind = getKindByRechnungId(rechnung_id);
+		Gruppe gruppe = getGruppeByKind(kind);
+		Kita kita = getKitaByKindID(kind.getId());
+		List<Sonderleistung> sonderleistungen = getSonderleistungenByKindId(kind.getId());
+		return new RechnungImpl(rechnung_id,betrag,kind,gruppe,kita,sonderleistungen);
+	}
+	
+	private List<Sonderleistung> getSonderleistungenByKindId(Integer kind_id) throws SQLException {
+		List<Sonderleistung> result = new ArrayList<Sonderleistung>();
+		String query = "select s.Id as ID, s.Bezeichnung as Bez, s.Preis as Preis from Sonderleistung s, KindGruppe kg where kg.Sonderleistung=s.ID and kg.Kind=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kind_id);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			result.add(new SonderleistungImpl(rs.getString("Bez"),rs.getInt("ID"),rs.getDouble("Preis")));
+		}
+		return result;
+	}
+
+	public Kind getKindByRechnungId(int rechnung_id) throws SQLException{
+		String query = "select getkindidbyrechnungid(?) as ID from dual";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, rechnung_id);
+		ResultSet rs = ps.executeQuery();
+		Kind kind = null;
+		while(rs.next()){
+			kind = getKindByID(rs.getInt("ID"));
+		}
+		return kind;
+	}
+	
+	public Rechnung addRechnung(int kind_id, int group_id) throws SQLException{
+		int rechung_id = 2;
+//		String query_rechnung_id = "select getnextrechnungid() from dual";
+//		ResultSet rs = executeStatement(query_rechnung_id);
+//		while(rs.next()){
+//			rechung_id = rs.getInt("ID")+1;
+//		}
+		Calendar now = Calendar.getInstance();
+		String query = "insert into the(select Rechnungen from KindGruppe where Kind=? and Gruppe=?) values("+rechung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByKindID(kind_id)+")";
+		System.out.println(query);
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kind_id);
+		ps.setInt(2, group_id);
+		ps.execute();
+		getConn().commit();
+		return getRechnungByID(rechung_id);
 	}
 	
 }
