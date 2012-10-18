@@ -265,19 +265,13 @@ public class DBConnectorImpl {
 		PreparedStatement ps;
 		try {
 			int rechnung_id = -1;
-			String query_rechnung_id = "select max(id) as ID from the (select Rechnungen from KindGruppe)";
+			String query_rechnung_id = "select rechnung_id_seq.nextval as ID from dual";
 			ResultSet rs = executeStatement(query_rechnung_id);
 			while(rs.next()){
-				rechnung_id = rs.getInt("ID")+1;
+				rechnung_id = rs.getInt("ID");
 			}
 			Calendar now = Calendar.getInstance();
-			String query_kind_familie = "select familie from Kind where ID="+k.getId();
-			ResultSet rs_temp = executeStatement(query_kind_familie);
-			int familie=1;
-			while(rs.next()){
-				familie = rs_temp.getInt("familie");
-			}
-			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(familie, k.getGehalt(), 4)+")),NULL)";
+			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+400+")),NULL)";
 			System.out.println(query);
 			ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
@@ -486,12 +480,13 @@ public class DBConnectorImpl {
 	}
 	
 	public Rechnung addRechnung(int kind_id, int group_id) throws SQLException{
-		int rechung_id = 2;
-//		String query_rechnung_id = "select getnextrechnungid() from dual";
-//		ResultSet rs = executeStatement(query_rechnung_id);
-//		while(rs.next()){
-//			rechung_id = rs.getInt("ID")+1;
-//		}
+		int rechung_id = -3;
+		String query_rechnung_id = "select rechnung_id_seq.nextval as ID from dual";
+		ResultSet rs = executeStatement(query_rechnung_id);
+		while(rs.next()){
+			rechung_id = rs.getInt("ID");
+		}
+		System.out.println(rechung_id);
 		Calendar now = Calendar.getInstance();
 		String query = "insert into the(select Rechnungen from KindGruppe where Kind=? and Gruppe=?) values("+rechung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByKindID(kind_id)+")";
 		System.out.println(query);
