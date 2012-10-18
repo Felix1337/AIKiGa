@@ -435,7 +435,7 @@ public class DBConnectorImpl {
 		return result;
 	}
 	
-	public Rechnung getRechnungByID(int rechnung_id) throws SQLException{
+	private Rechnung getRechnungByID(int rechnung_id) throws SQLException{
 		String query = "select * from the(select Rechnungen from KindGruppe) where ID=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, rechnung_id);
@@ -479,7 +479,7 @@ public class DBConnectorImpl {
 		return kind;
 	}
 	
-	public Rechnung addRechnung(int kind_id, int group_id) throws SQLException{
+	public void addRechnung(int kind_id, int group_id) throws SQLException{
 		int rechung_id = -3;
 		String query_rechnung_id = "select rechnung_id_seq.nextval as ID from dual";
 		ResultSet rs = executeStatement(query_rechnung_id);
@@ -495,7 +495,7 @@ public class DBConnectorImpl {
 		ps.setInt(2, group_id);
 		ps.execute();
 		getConn().commit();
-		return getRechnungByID(rechung_id);
+		//return getRechnungByID(rechung_id);
 	}
 	
 }
