@@ -5,14 +5,17 @@
 */
 
 
+
 drop sequence Warteliste_ID_seq;
 drop sequence Kind_ID_seq;
 drop sequence Gruppe_ID_seq;
 drop sequence Tageszeit_ID_seq;
 drop sequence Kita_ID_seq;
 drop sequence Sonderleistung_ID_seq;
+drop sequence rechnung_id_seq;
 
 drop table KindGruppe;
+drop type rechnung_nested_type;
 drop table Sonderleistung;
 drop table Warteliste;
 drop table Kind;
@@ -70,17 +73,31 @@ create table Warteliste (
 
 create table Sonderleistung(
   ID integer not null constraint PK_Sonderleistung primary key,
-  Bezeichnung varchar2(50) not null
+  Bezeichnung varchar2(50) not null,
+  Preis number(*,2) not null,
+  constraint CK_Sonderl_Preis check (Preis>0)
 );
+
+create or replace
+type rechnung_type as object(
+  Id number,
+  Datum date,
+  Betrag number
+);
+/
+
+create or replace
+type rechnung_nested_type as table of rechnung_type;
+/
 
 create table KindGruppe (
  Kind integer not null constraint FK_KindGruppe_Kind references Kind(ID),
  Gruppe integer not null constraint FK_KindGruppe_Gruppe references Gruppe(ID),
- Preis number(*,2) not null,
- constraint CK_KindGruppe_Preis check(Preis>0),
+ Rechnungen rechnung_nested_type,
  Sonderleistung integer constraint FK_KindGruppe references Sonderleistung(ID),
  constraint PK_KindGruppe primary key (Kind,Gruppe)
-) cluster GruppeKind(Gruppe);
+) NESTED TABLE Rechnungen STORE AS KindGruppe_Rechnungen,
+cluster GruppeKind(Gruppe);
 
 /*
 create table PreiseA (
@@ -261,6 +278,49 @@ end getPriceByValues;
 /
 
 /*
+/
+*/
+create or replace
+function getKindIdByRechnungId(rechnung_id in number) return number as
+  kind_id number;
+  gruppe_id number;
+  temp number;
+  cursor csr is select Kind,Gruppe from KindGruppe;
+begin
+  open csr;
+  loop
+    fetch csr into kind_id, gruppe_id;
+    exit when csr%notfound;
+    select id into temp from the(select Rechnungen from KindGruppe where Kind=kind_id and Gruppe=gruppe_id);
+    if rechnung_id = temp then return kind_id;
+    end if;
+  end loop;
+end getKindIdByRechnungId;
+/
+
+create or replace
+function getNextRechnungId return number as
+  kind_id number;
+  gruppe_id number;
+  temp number;
+  r_id number;
+  cursor csr is select Kind,Gruppe from KindGruppe;
+begin
+  r_id := 1;
+  open csr;
+  loop
+    fetch csr into kind_id, gruppe_id;
+    exit when csr%notfound;
+    select id into temp from the(select Rechnungen from KindGruppe where Kind=kind_id and Gruppe=gruppe_id);
+    if temp > r_id then r_id := temp;
+    end if;
+  end loop;
+  return r_id;
+end getNextRechnungId;
+/
+
+create sequence rechnung_id_seq;
+/*
 / Testdaten
 */
 insert into Kita values(NULL,'Kita Bauerberg');
@@ -268,5 +328,13 @@ insert into Tageszeit values(NULL,'vormittags');
 insert into Tageszeit values(NULL,'nachmittags');
 insert into Tageszeit values(NULL,'ganztags');
 insert into Gruppe values(NULL,'Katzen',1,1,4);
-insert into Kind values(NULL,'Anton','Romanov','01.01.2010',2500.00,2);
-insert into KindGruppe values(1,1,500,NULL);
+insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2500.00,2);
+--rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350))
+insert into KindGruppe values(1,1,rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350)),NULL);
+insert into Kind values(NULL,'Max','Musterman','01.01.2010',1500.00,3);
+insert into Kind values(NULL,'Max','Plank','08.10.1978',890.00,4);
+insert into Kind values(NULL,'Erwin','Schrödinger','12.09.1887',890.00,4);
+insert into Kind values(NULL,'Sheldon Lee','Cooper','07.05.1879',890.00,4);
+insert into Warteliste(ID,Kind,Gruppe) values(NULL,3,1);
+insert into Warteliste(ID,Kind,Gruppe) values(NULL,4,1);
+insert into Warteliste(ID,Kind,Gruppe) values(NULL,5,1);
