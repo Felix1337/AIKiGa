@@ -9,13 +9,15 @@ public class KindImpl implements Kind{
 	private String nachname;
 	private double gehalt;
 	private Integer id;
+	private Integer familie;
 	
 
-	public KindImpl(String vorname,String nachname,double gehaltEltern, int id) {
+	public KindImpl(String vorname,String nachname,double gehaltEltern, int id, int familie) {
 		this.vorname = vorname;
 		this.nachname = nachname;
 		this.gehalt = gehaltEltern;
 		this.id = id;
+		this.familie = familie;
 	}
 	@Override
 	public String getVorname() {
@@ -42,5 +44,9 @@ public class KindImpl implements Kind{
 	@Override
 	public Object[] getStats() {
 		return new Object[]{"ID: " + id,"Vorname: " + vorname,"Nachname: " + nachname};
+	}
+	@Override
+	public int getFamilie() {
+		return familie;
 	}
 }

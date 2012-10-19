@@ -9,4 +9,6 @@ public interface Gruppe {
 	public String toString();
 
 	public String getZeit();
+
+	public int getStunden();
 }

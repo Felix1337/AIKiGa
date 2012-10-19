@@ -13,4 +13,6 @@ public interface Kind {
 	public String toString();
 	
 	public Object[] getStats();
+
+	public int getFamilie();
 }
