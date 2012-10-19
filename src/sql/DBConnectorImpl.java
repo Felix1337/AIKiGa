@@ -300,28 +300,29 @@ public class DBConnectorImpl {
 		}
 		try{
 			Kind k = addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
-//			String kind_query = "select max(ID) as ID from Kind";
-//			ResultSet rs = executeStatement(kind_query);
-//			int kind_id = -1;
-//			while(rs.next()){
-//				kind_id = rs.getInt("ID");
-//			}
-			//String query = "insert into KindGruppe(Kind,Gruppe,Preis) values("+k.getId()+","+gruppe_id+","+preis+")";
-//			System.out.println(query);
-//			executeStatement(query);
-			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
-			PreparedStatement ps = getConn().prepareStatement(query);
-			ps.setInt(1, k.getId());
-			ps.setInt(2, gruppe_id);
-			ps.execute();
-//			double preis = getPriceByKindID(k.getId());
-//			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
-//			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
-//			ps2.setDouble(1, preis);
-//			ps2.setInt(2, k.getId());
-//			ps2.setDouble(3, gruppe_id);
-//			ps2.execute();
-			getConn().commit();
+			return addKindToGruppe(k, getGruppeByID(gruppe_id));
+////			String kind_query = "select max(ID) as ID from Kind";
+////			ResultSet rs = executeStatement(kind_query);
+////			int kind_id = -1;
+////			while(rs.next()){
+////				kind_id = rs.getInt("ID");
+////			}
+//			//String query = "insert into KindGruppe(Kind,Gruppe,Preis) values("+k.getId()+","+gruppe_id+","+preis+")";
+////			System.out.println(query);
+////			executeStatement(query);
+//			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
+//			PreparedStatement ps = getConn().prepareStatement(query);
+//			ps.setInt(1, k.getId());
+//			ps.setInt(2, gruppe_id);
+//			ps.execute();
+////			double preis = getPriceByKindID(k.getId());
+////			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
+////			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
+////			ps2.setDouble(1, preis);
+////			ps2.setInt(2, k.getId());
+////			ps2.setDouble(3, gruppe_id);
+////			ps2.execute();
+//			getConn().commit();
 		} catch(SQLException e){
 			try {
 				executeStatement("rollback to anfang");
