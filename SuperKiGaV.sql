@@ -13,14 +13,19 @@ drop sequence Tageszeit_ID_seq;
 drop sequence Kita_ID_seq;
 drop sequence Sonderleistung_ID_seq;
 drop sequence rechnung_id_seq;
+drop sequence KLeiter_ID_seq;
+drop sequence Elternteil_ID_seq;
 
 drop table KindGruppe;
 drop type rechnung_nested_type;
 drop table Sonderleistung;
 drop table Warteliste;
 drop table Kind;
+drop table Elternteil;
 drop table Gruppe;
 drop table Kita;
+drop table KLeiter;
+drop table Bundesland;
 drop table Tageszeit;
 
 drop cluster GruppeKind;
@@ -40,9 +45,25 @@ create table Tageszeit (
  Bezeichnung varchar2(100) not null
 );
 
+create table KLeiter(
+ ID integer not null constraint PK_KLeiter primary key,
+ Vorname varchar2(100) not null,
+ Nachname varchar2(100) not null,
+ Benutzername varchar2(100) not null,
+ Passwort varchar2(100) not null
+);
+
+create table Bundesland(
+  ID integer not null constraint PK_Bundesland primary key,
+  Krzl varchar2(2) not null,
+  Bezeichnung varchar2(50) not null
+);
+
 create table Kita (
   ID integer not null constraint PK_Kita primary key,
-  Bezeichnung varchar2(100) not null
+  Bezeichnung varchar2(100) not null,
+  KLeiter integer not null constraint FK_Kita_KLeiter references KLeiter(ID),
+  Bundesland integer not null constraint FK_Kita_Bundesland references Bundesland(ID)
 );
 
 create table Gruppe (
@@ -54,6 +75,18 @@ create table Gruppe (
  constraint CK_Gruppe_Stunden check(Stunden>=0)
 ) cluster GruppeKind(ID);
 
+create table Elternteil(
+  ID integer not null constraint PK_Eltern primary key,
+  Vorname varchar2(100) not null,
+  Nachname varchar2(100) not null,
+  Geschlecht varchar2(1) not null,
+  constraint CK_Geschlecht check (Geschlecht in ('m','w')),
+  Gehalt number(*,2) not null,
+  constraint CK_Gehalt check (Gehalt>=0),
+  Benutzername varchar2(100) not null,
+  Passwort varchar2(100) not null
+);
+
 create table Kind (
  ID integer not null constraint PK_Kind primary key,
  Vorname varchar2(100) not null,
@@ -62,7 +95,8 @@ create table Kind (
  Gehalt number(*,2) not null,
  constraint CK_Kind_Gehalt check (Gehalt > 0),
  Familie number not null,
- constraint CK_Kind_Familie check (Familie>=2)
+ constraint CK_Kind_Familie check (Familie>=2),
+ Elternteil integer not null constraint FK_Kind_Elternteil references Elternteil(ID)
 ) cluster GruppeKind(ID);
 
 create table Warteliste (
@@ -98,6 +132,7 @@ create table KindGruppe (
  constraint PK_KindGruppe primary key (Kind,Gruppe)
 ) NESTED TABLE Rechnungen STORE AS KindGruppe_Rechnungen,
 cluster GruppeKind(Gruppe);
+
 
 /*
 create table PreiseA (
@@ -149,15 +184,35 @@ create table PreiseE (
 /*
 /   Sequenzen für IDs
 */
+create sequence Elternteil_ID_seq start with 1 increment by 1;
+create sequence KLeiter_ID_seq start with 1 increment by 1;
 create sequence Kind_ID_seq start with 1 increment by 1;
 create sequence Warteliste_ID_seq start with 1 increment by 1;
 create sequence Gruppe_ID_seq start with 1 increment by 1;
 create sequence Tageszeit_ID_seq start with 1 increment by 1;
 create sequence Kita_ID_seq start with 1 increment by 1;
 create sequence Sonderleistung_ID_seq start with 1 increment by 1;
+create sequence rechnung_id_seq;
+
 /*
 /   Trigger zum Hochzählen von IDs
 */
+create or replace trigger KLeiter_id_trigger
+  before insert on KLeiter
+  for each row
+  begin
+    select KLeiter_ID_seq.nextval into :new.id from dual;
+  end;
+/
+
+create or replace trigger Elternteil_id_trigger
+  before insert on Elternteil
+  for each row
+  begin
+    select Elternteil_ID_seq.nextval into :new.id from dual;
+  end;
+/
+
 create or replace trigger Warteliste_id_trigger
   before insert on Warteliste
   for each row
@@ -298,39 +353,22 @@ begin
 end getKindIdByRechnungId;
 /
 
-create or replace
-function getNextRechnungId return number as
-  kind_id number;
-  gruppe_id number;
-  temp number;
-  r_id number;
-  cursor csr is select Kind,Gruppe from KindGruppe;
-begin
-  r_id := 1;
-  open csr;
-  loop
-    fetch csr into kind_id, gruppe_id;
-    exit when csr%notfound;
-    select id into temp from the(select Rechnungen from KindGruppe where Kind=kind_id and Gruppe=gruppe_id);
-    if temp > r_id then r_id := temp;
-    end if;
-  end loop;
-  return r_id;
-end getNextRechnungId;
-/
-
-create sequence rechnung_id_seq;
 /*
 / Testdaten
 */
-insert into Kita values(NULL,'Kita Bauerberg');
+insert into Bundesland(ID,Krzl,Bezeichnung) values(1,'HH','Hamburg');
+insert into KLeiter(ID,Vorname,Nachname,Benutzername,Passwort) values(NULL,'Bruce','Lee','blee','12345');
+insert into Kita values(NULL,'Kita Bauerberg',1,1);
 insert into Tageszeit values(NULL,'vormittags');
 insert into Tageszeit values(NULL,'nachmittags');
 insert into Tageszeit values(NULL,'ganztags');
 insert into Gruppe values(NULL,'Katzen',1,1,4);
-insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2500.00,2);
+insert into Elternteil(ID,Vorname,Nachname,Geschlecht,Gehalt,Benutzername,Passwort) values(NULL,'M','Wolowitz','w',1200,'mwolowitz','12345');
+insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2500.00,2,1);
 --rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350))
 insert into KindGruppe values(1,1,rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350)),NULL);
+
+/*
 insert into Kind values(NULL,'Max','Musterman','01.01.2010',1500.00,3);
 insert into Kind values(NULL,'Max','Plank','08.10.1978',890.00,4);
 insert into Kind values(NULL,'Erwin','Schrödinger','12.09.1887',890.00,4);
@@ -338,3 +376,4 @@ insert into Kind values(NULL,'Sheldon Lee','Cooper','07.05.1879',890.00,4);
 insert into Warteliste(ID,Kind,Gruppe) values(NULL,3,1);
 insert into Warteliste(ID,Kind,Gruppe) values(NULL,4,1);
 insert into Warteliste(ID,Kind,Gruppe) values(NULL,5,1);
+*/

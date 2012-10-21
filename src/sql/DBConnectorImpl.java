@@ -1,10 +1,12 @@
 package sql;
+import impl.ElternteilImpl;
 import impl.GruppeImpl;
 import impl.KLeiterImpl;
 import impl.KindImpl;
 import impl.KitaImpl;
 import impl.RechnungImpl;
 import impl.SonderleistungImpl;
+import interfaces.Elternteil;
 import interfaces.Gruppe;
 import interfaces.KLeiter;
 import interfaces.Kind;
@@ -530,7 +532,7 @@ public class DBConnectorImpl {
 		String query = "select Vorname, Nachname from KLeiter where ID=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, id);
-		ResultSet rs = executeStatement(query);
+		ResultSet rs = ps.executeQuery();
 		String vorname = "";
 		String nachname = "";
 		while(rs.next()){
@@ -559,15 +561,48 @@ public class DBConnectorImpl {
 	}
 	
 	public KLeiter getKLeiterByKita(int kita_id) throws SQLException{
-		String query = "select kl.id as ID from KLeiter kl, Kita k where k.KLeiter=kl.ID and k.ID=?";
+		String query = "select KLeiter from Kita where KLeiter=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, kita_id);
-		ResultSet rs = executeStatement(query);
+		ResultSet rs = ps.executeQuery();
 		int kl_id = -1;
 		while(rs.next()){
-			kl_id = rs.getInt("ID");
+			kl_id = rs.getInt("KLeiter");
 		}
 		return getKLeiterByID(kl_id);
+	}
+	
+	/*
+	 * Elternteil
+	 */
+	public Elternteil getElternteilById(int id) throws SQLException{
+		String query = "select Vorname, Nachname, Gehalt, Geschlecht from Elternteil where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		ResultSet rs = ps.executeQuery();
+		String vorname = "";
+		String nachname = "";
+		double gehalt = Double.NaN;
+		String geschlecht = "";
+		while(rs.next()){
+			vorname = rs.getString("Vorname");
+			nachname = rs.getString("Nachname");
+			gehalt = rs.getDouble("Gehalt");
+			geschlecht = rs.getString("Geschlecht");
+		}
+		return new ElternteilImpl(id, vorname, nachname, gehalt, geschlecht);
+	}
+	
+	public Elternteil getElternteilByKindId(int id) throws SQLException{
+		String query = "select Elternteil from Kind where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		ResultSet rs = ps.executeQuery();
+		int e_id = -1;
+		while(rs.next()){
+			e_id = rs.getInt("Elternteil");
+		}
+		return getElternteilById(e_id);
 	}
 	
 }
