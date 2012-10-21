@@ -260,17 +260,18 @@ public class DBConnectorImpl {
 	}
 	
 	
-	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit) throws SQLException{
-		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie) values(NULL,?,?,?,?,?)";
+	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, Elternteil e) throws SQLException{
+		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie,Elternteil) values(NULL,?,?,?,?,?,?)";
 		String date = gDatum == null ? "12.10.1987" : String.valueOf(gDatum.getTime().getDay())+"."+String.valueOf(gDatum.getTime().getMonth())+"."+String.valueOf(gDatum.getTime().getYear());
 		//String date = String.valueOf(gDatum.get(Calendar.DAY_OF_MONTH))+"."+String.valueOf(gDatum.get(Calendar.MONTH))+"."+String.valueOf(gDatum.get(Calendar.YEAR));
 		//String date = ;
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setString(1, vorame);
 		ps.setString(2, nachname);
-		ps.setString(3, date);
+		ps.setString(3, "12.10.1987");
 		ps.setDouble(4, gehalt);
 		ps.setInt(5, anzahlFamMit);
+		ps.setInt(6, e.getId());
 		ps.executeQuery();
 		getConn().commit();
 		String query_kind_id = "select max(id) as ID from Kind";
@@ -334,8 +335,7 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
-	public boolean addKindToGruppe(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, int gruppe_id){
-		//Savepoint savep = null;
+	public boolean addKindToGruppe(int kind_id, int gruppe_id){
 		try {
 			executeStatement("SAVEPOINT anfang");
 		} catch (SQLException e2) {
@@ -344,30 +344,7 @@ public class DBConnectorImpl {
 			e2.printStackTrace();
 		}
 		try{
-			Kind k = addKind(vorame, nachname, gDatum, gehalt, anzahlFamMit);
-			return addKindToGruppe(k, getGruppeByID(gruppe_id));
-////			String kind_query = "select max(ID) as ID from Kind";
-////			ResultSet rs = executeStatement(kind_query);
-////			int kind_id = -1;
-////			while(rs.next()){
-////				kind_id = rs.getInt("ID");
-////			}
-//			//String query = "insert into KindGruppe(Kind,Gruppe,Preis) values("+k.getId()+","+gruppe_id+","+preis+")";
-////			System.out.println(query);
-////			executeStatement(query);
-//			String query = "insert into KindGruppe(Kind,Gruppe) values(?,?)";
-//			PreparedStatement ps = getConn().prepareStatement(query);
-//			ps.setInt(1, k.getId());
-//			ps.setInt(2, gruppe_id);
-//			ps.execute();
-////			double preis = getPriceByKindID(k.getId());
-////			String update_preis = "update KindGruppe set Preis=? where Kind=? and Gruppe=?";
-////			PreparedStatement ps2 = getConn().prepareStatement(update_preis);
-////			ps2.setDouble(1, preis);
-////			ps2.setInt(2, k.getId());
-////			ps2.setDouble(3, gruppe_id);
-////			ps2.execute();
-//			getConn().commit();
+			return addKindToGruppe(getKindByID(kind_id), getGruppeByID(gruppe_id));
 		} catch(SQLException e){
 			try {
 				executeStatement("rollback to anfang");
@@ -376,7 +353,6 @@ public class DBConnectorImpl {
 				e1.printStackTrace();
 			}
 		}
-		
 		return true;
 	}
 	
@@ -560,7 +536,7 @@ public class DBConnectorImpl {
 		return getKLeiterByID(id);
 	}
 	
-	public KLeiter getKLeiterByKita(int kita_id) throws SQLException{
+	public KLeiter getKLeiterByKitaID(int kita_id) throws SQLException{
 		String query = "select KLeiter from Kita where KLeiter=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, kita_id);
@@ -603,6 +579,26 @@ public class DBConnectorImpl {
 			e_id = rs.getInt("Elternteil");
 		}
 		return getElternteilById(e_id);
+	}
+	
+	public Elternteil addElternteil(String vorname, String nachname, String geschlecht, double gehalt, String benutzername, String passwort) throws SQLException{
+		String query = "insert into Elternteil(ID,Vorname,Nachname,Geschlecht,Gehalt,Benutzername,Passwort) values(NULL,?,?,?,?,?,?)";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setString(1,vorname);
+		ps.setString(2, nachname);
+		ps.setString(3, geschlecht);
+		ps.setDouble(4, gehalt);
+		ps.setString(5, benutzername);
+		ps.setString(6, passwort);
+		ps.execute();
+		getConn().commit();
+		String query_id = "select max(id) as ID from Elternteil";
+		ResultSet rs = executeStatement(query_id);
+		int id = -1;
+		while(rs.next()){
+			id = rs.getInt("ID");
+		}
+		return getElternteilById(id);
 	}
 	
 }
