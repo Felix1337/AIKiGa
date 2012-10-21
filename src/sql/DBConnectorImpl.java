@@ -268,7 +268,7 @@ public class DBConnectorImpl {
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setString(1, vorame);
 		ps.setString(2, nachname);
-		ps.setString(3, "12.10.1987");
+		ps.setString(3, date);
 		ps.setDouble(4, gehalt);
 		ps.setInt(5, anzahlFamMit);
 		ps.setInt(6, e.getId());
