@@ -1,10 +1,12 @@
 package sql;
 import impl.GruppeImpl;
+import impl.KLeiterImpl;
 import impl.KindImpl;
 import impl.KitaImpl;
 import impl.RechnungImpl;
 import impl.SonderleistungImpl;
 import interfaces.Gruppe;
+import interfaces.KLeiter;
 import interfaces.Kind;
 import interfaces.Kita;
 import interfaces.Rechnung;
@@ -18,11 +20,8 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +95,9 @@ public class DBConnectorImpl {
 	 * API
 	 */
 	
+	/*
+	 * Gruppe
+	 */
 	public Gruppe getGruppeByKindID(int id) throws SQLException{
 		String query_gruppeID = "select g.ID, g.Bezeichnung as Gbez, g.Stunden, t.Bezeichnung as Tbez from KindGruppe, Gruppe g, Tageszeit t where Kind=? and Gruppe=g.ID and g.tageszeit = t.ID";
 		PreparedStatement ps = getConn().prepareStatement(query_gruppeID);
@@ -111,13 +113,68 @@ public class DBConnectorImpl {
 			tageszeit = rs.getString("Tbez");
 			stunden = rs.getInt("Stunden");
 		}
-		return new GruppeImpl(bezeichnung, gruppe_id, tageszeit,stunden);
+		return getGruppeByID(gruppe_id);
 	}
 	
 	public Gruppe getGruppeByKind(Kind k) throws SQLException{
 		return getGruppeByKindID(k.getId());
 	}
 	
+	public Map<Integer, Gruppe> getGruppenByKitaID(int kitaID) throws SQLException {
+		Map<Integer, Gruppe> gruppen = new HashMap<Integer, Gruppe>();
+		String query = "SELECT Gruppe.ID as GID, Gruppe.Stunden as std, Gruppe.Bezeichnung as GBez, Tageszeit.Bezeichnung as Tbez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Kita = ?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kitaID);
+		ResultSet rs = ps.executeQuery();
+		while (rs.next()) {
+			Integer id = rs.getInt("GID");
+			String name = rs.getString("GBez");
+			String zeit = rs.getString("Tbez");
+			int stunden = rs.getInt("std");
+			gruppen.put(id, getGruppeByID(id));
+		}
+		return gruppen;
+	}
+	
+	public Map<Integer, Gruppe> getGruppenByKita(Kita k) throws SQLException {
+		return getGruppenByKitaID(k.getId());
+	}
+	
+	public boolean isPlatzFrei(int gruppeID) throws SQLException{
+		String query = "select count(*) as Anzahl from KindGruppe where Gruppe=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppeID);
+		ResultSet rs = ps.executeQuery();
+		int anzahl = 30;
+		while (rs.next()) {
+			anzahl = rs.getInt("Anzahl");
+		}
+		return anzahl<30;
+	}
+	
+	public boolean isPlatzFrei(Gruppe g) throws SQLException{
+		return isPlatzFrei(g.getId());
+	}
+	
+	public Gruppe getGruppeByID(int gruppe_id) throws SQLException{
+		String query = "SELECT Gruppe.Bezeichnung as GBez, Gruppe.Stunden as std, Tageszeit.Bezeichnung as TBez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Gruppe.ID = ?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, gruppe_id);
+		ResultSet rs = ps.executeQuery();
+		String bezeichnung = "";
+		String tageszeit = "";
+		int stunden = -1;
+		while(rs.next()){
+			bezeichnung = rs.getString("GBez");
+			tageszeit = rs.getString("TBez");
+			stunden = rs.getInt("std");
+		}
+		return new GruppeImpl(bezeichnung, gruppe_id, tageszeit,stunden);
+	}
+	
+	/*
+	 * Kita
+	 */
 	public Kita getKitaByKindID(int id) throws SQLException{
 		Gruppe g = getGruppeByKindID(id);
 		String query = "select k.ID as KID, k.Bezeichnung as Kbez from Gruppe, Kita k where Gruppe.ID=?";
@@ -149,26 +206,10 @@ public class DBConnectorImpl {
 		return kitas;
 	}
 	
-	public Map<Integer, Gruppe> getGruppenByKitaID(int kitaID) throws SQLException {
-		Map<Integer, Gruppe> gruppen = new HashMap<Integer, Gruppe>();
-		String query = "SELECT Gruppe.ID as GID, Gruppe.Stunden as std, Gruppe.Bezeichnung as GBez, Tageszeit.Bezeichnung as Tbez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Kita = ?";
-		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, kitaID);
-		ResultSet rs = ps.executeQuery();
-		while (rs.next()) {
-			Integer id = rs.getInt("GID");
-			String name = rs.getString("GBez");
-			String zeit = rs.getString("Tbez");
-			int stunden = rs.getInt("std");
-			gruppen.put(id, new GruppeImpl(name, id, zeit,stunden));
-		}
-		return gruppen;
-	}
 	
-	public Map<Integer, Gruppe> getGruppenByKita(Kita k) throws SQLException {
-		return getGruppenByKitaID(k.getId());
-	}
-	
+	/*
+	 * Kind
+	 */
 	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
 		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
 		String query = "SELECT Vorname, Nachname, Gehalt, ID, Familie FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
@@ -184,22 +225,6 @@ public class DBConnectorImpl {
 			kinder.put(id, new KindImpl(vname, nname, gehalt, id, familie));
 		}
 		return kinder;
-	}
-	
-	public boolean isPlatzFrei(int gruppeID) throws SQLException{
-		String query = "select count(*) as Anzahl from KindGruppe where Gruppe=?";
-		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, gruppeID);
-		ResultSet rs = ps.executeQuery();
-		int anzahl = 30;
-		while (rs.next()) {
-			anzahl = rs.getInt("Anzahl");
-		}
-		return anzahl<30;
-	}
-	
-	public boolean isPlatzFrei(Gruppe g) throws SQLException{
-		return isPlatzFrei(g.getId());
 	}
 	
 	public double getPriceByKindID(int id) throws SQLException{
@@ -253,6 +278,24 @@ public class DBConnectorImpl {
 			id = rs.getInt("ID");
 		}
 		return getKindByID(id);
+	}
+	
+	public Kind getKindByID(int kindID) throws SQLException{
+		String query = "select Vorname, Nachname, Gehalt, Familie FROM Kind where id=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kindID);
+		ResultSet rs = ps.executeQuery();
+		String vorname = "";
+		String nachname ="";
+		double gehalt = Double.NaN;
+		int familie = -1;
+		while(rs.next()){
+			vorname = rs.getString("Vorname");
+			nachname = rs.getString("Nachname");
+			gehalt = rs.getDouble("Gehalt");
+			familie = rs.getInt("Familie");
+		}
+		return new KindImpl(vorname, nachname, gehalt, kindID,familie);
 	}
 	
 	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
@@ -335,7 +378,7 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
-	public boolean kindAbmelden(int kind_id, int gruppe_id){
+	private boolean kindAbmelden(int kind_id, int gruppe_id){
 		Savepoint svp = null;
 		try {
 			svp = getConn().setSavepoint("KindAbmeldenAnfang");
@@ -356,46 +399,23 @@ public class DBConnectorImpl {
 		}
 	}
 	
-	public Kind getKindByID(int kindID) throws SQLException{
-		String query = "select Vorname, Nachname, Gehalt, Familie FROM Kind where id=?";
+	public Kind getKindByRechnungId(int rechnung_id) throws SQLException{
+		String query = "select getkindidbyrechnungid(?) as ID from dual";
 		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, kindID);
+		ps.setInt(1, rechnung_id);
 		ResultSet rs = ps.executeQuery();
-		String vorname = "";
-		String nachname ="";
-		double gehalt = Double.NaN;
-		int familie = -1;
+		Kind kind = null;
 		while(rs.next()){
-			vorname = rs.getString("Vorname");
-			nachname = rs.getString("Nachname");
-			gehalt = rs.getDouble("Gehalt");
-			familie = rs.getInt("Familie");
+			kind = getKindByID(rs.getInt("ID"));
 		}
-		return new KindImpl(vorname, nachname, gehalt, kindID,familie);
-	}
-	
-	@Deprecated
-	public int getPlatzByKindID(int kindID) throws SQLException{
-		return 0;
-	}
-	
-	public Gruppe getGruppeByID(int gruppe_id) throws SQLException{
-		String query = "SELECT Gruppe.Bezeichnung as GBez, Gruppe.Stunden as std, Tageszeit.Bezeichnung as TBez FROM Gruppe JOIN Tageszeit ON Gruppe.Tageszeit = Tageszeit.ID WHERE Gruppe.ID = ?";
-		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, gruppe_id);
-		ResultSet rs = ps.executeQuery();
-		String bezeichnung = "";
-		String tageszeit = "";
-		int stunden = -1;
-		while(rs.next()){
-			bezeichnung = rs.getString("GBez");
-			tageszeit = rs.getString("TBez");
-			stunden = rs.getInt("std");
-		}
-		return new GruppeImpl(bezeichnung, gruppe_id, tageszeit,stunden);
+		return kind;
 	}
 	
 	
+	
+	/*
+	 * Warteliste
+	 */
 	public Map<Gruppe,Integer> getWartelistePosition(int kindID) throws SQLException{
 		Map<Gruppe,Integer> result = new HashMap<Gruppe,Integer>();
 		String query_gruppen = "select Gruppe from Warteliste where Kind=?";
@@ -432,6 +452,9 @@ public class DBConnectorImpl {
 		return result;
 	}
 	
+	/*
+	 * Rechnung
+	 */
 	public List<Rechnung> getRechungByKindID(int kind_id) throws SQLException{
 		List<Rechnung> result = new ArrayList<Rechnung>();
 		String query = "select ID from the(select Rechnungen from KindGruppe where Kind=?)";
@@ -464,30 +487,6 @@ public class DBConnectorImpl {
 		return new RechnungImpl(rechnung_id,betrag,kind,gruppe,kita,sonderleistungen);
 	}
 	
-	private List<Sonderleistung> getSonderleistungenByKindId(Integer kind_id) throws SQLException {
-		List<Sonderleistung> result = new ArrayList<Sonderleistung>();
-		String query = "select s.Id as ID, s.Bezeichnung as Bez, s.Preis as Preis from Sonderleistung s, KindGruppe kg where kg.Sonderleistung=s.ID and kg.Kind=?";
-		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, kind_id);
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-			result.add(new SonderleistungImpl(rs.getString("Bez"),rs.getInt("ID"),rs.getDouble("Preis")));
-		}
-		return result;
-	}
-
-	public Kind getKindByRechnungId(int rechnung_id) throws SQLException{
-		String query = "select getkindidbyrechnungid(?) as ID from dual";
-		PreparedStatement ps = getConn().prepareStatement(query);
-		ps.setInt(1, rechnung_id);
-		ResultSet rs = ps.executeQuery();
-		Kind kind = null;
-		while(rs.next()){
-			kind = getKindByID(rs.getInt("ID"));
-		}
-		return kind;
-	}
-	
 	public void addRechnung(int kind_id, int group_id) throws SQLException{
 		int rechung_id = -3;
 		String query_rechnung_id = "select rechnung_id_seq.nextval as ID from dual";
@@ -505,6 +504,70 @@ public class DBConnectorImpl {
 		ps.execute();
 		getConn().commit();
 		//return getRechnungByID(rechung_id);
+	}
+	
+	/*
+	 * Sonderleistung
+	 */
+	private List<Sonderleistung> getSonderleistungenByKindId(Integer kind_id) throws SQLException {
+		List<Sonderleistung> result = new ArrayList<Sonderleistung>();
+		String query = "select s.Id as ID, s.Bezeichnung as Bez, s.Preis as Preis from Sonderleistung s, KindGruppe kg where kg.Sonderleistung=s.ID and kg.Kind=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kind_id);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			result.add(new SonderleistungImpl(rs.getString("Bez"),rs.getInt("ID"),rs.getDouble("Preis")));
+		}
+		return result;
+	}
+	
+	
+	
+	/*
+	 * Kindergartenleiter
+	 */
+	public KLeiter getKLeiterByID(int id) throws SQLException{
+		String query = "select Vorname, Nachname from KLeiter where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		ResultSet rs = executeStatement(query);
+		String vorname = "";
+		String nachname = "";
+		while(rs.next()){
+			vorname = rs.getString("Vorname");
+			nachname = rs.getString("Nachname");
+		}
+		return new KLeiterImpl(id, vorname, nachname);
+	}
+	
+	public KLeiter addKLeiter(String vorname, String nachname, String benutzername, String passwort) throws SQLException{
+		String query = "insert into KLeiter(ID,Vorname,Nachname,Benutzername,Passwort) values(NULL,?,?,?,?)";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setString(1, vorname);
+		ps.setString(2, nachname);
+		ps.setString(3, benutzername);
+		ps.setString(4, passwort);
+		ps.execute();
+		getConn().commit();
+		String select_query = "select max(id) as ID from KLeiter";
+		ResultSet rs = executeStatement(select_query);
+		int id = -1;
+		while(rs.next()){
+			id = rs.getInt("ID");
+		}
+		return getKLeiterByID(id);
+	}
+	
+	public KLeiter getKLeiterByKita(int kita_id) throws SQLException{
+		String query = "select kl.id as ID from KLeiter kl, Kita k where k.KLeiter=kl.ID and k.ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, kita_id);
+		ResultSet rs = executeStatement(query);
+		int kl_id = -1;
+		while(rs.next()){
+			kl_id = rs.getInt("ID");
+		}
+		return getKLeiterByID(kl_id);
 	}
 	
 }
