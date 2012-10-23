@@ -28,9 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
+/**
+ * Die Klasse ist für die Verbindung mit der Oracle-DB zuständig
  *	@author Anton Romanov
- *	@date 16.10.2012
+ *	date 16.10.2012
  *	@version 1.3
  */
 
@@ -142,6 +143,13 @@ public class DBConnectorImpl {
 		return getGruppenByKitaID(k.getId());
 	}
 	
+	/**
+	 * Die Methode prüft, ob ein Platz in der Gruppe gruppeID frei ist. Die Anzahl
+	 * der Plätze ist auf 30 begrenzt.
+	 * @param gruppeID
+	 * @return true wenn Platz frei ist. false wenn nicht
+	 * @throws SQLException
+	 */
 	public boolean isPlatzFrei(int gruppeID) throws SQLException{
 		String query = "select count(*) as Anzahl from KindGruppe where Gruppe=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
@@ -262,7 +270,18 @@ public class DBConnectorImpl {
 		return preis;
 	}
 	
-	
+	/**
+	 * Diese Methode ist für NEUE Kinder, die in die existierende Gruppe eingetragen werden müssen
+	 * 
+	 * @param vorame Vorname des Kindes
+	 * @param nachname Nachname des Kindes
+	 * @param gDatum Geburtsdatum des Kindes
+	 * @param gehalt Gehalt der Eltern. (wird bald in Elternteil verschoben)
+	 * @param anzahlFamMit Anzahl der Familienmitglieder. Wichtig für die Preisermittlung
+	 * @param e Elternteil - wer zahlt für das Kind
+	 * @return Das Kind-Object für das eingetragene Kind
+	 * @throws SQLException
+	 */
 	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, Elternteil e) throws SQLException{
 		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie,Elternteil) values(NULL,?,?,?,?,?,?)";
 		String date = gDatum == null ? "12.10.1987" : String.valueOf(gDatum.getTime().getDay())+"."+String.valueOf(gDatum.getTime().getMonth())+"."+String.valueOf(gDatum.getTime().getYear());
@@ -317,6 +336,13 @@ public class DBConnectorImpl {
 		getConn().commit();
 	}
 	
+	/**
+	 * Diese Methode ist für EXISTIERENDE Kinder, die in die existierende Gruppe eingetragen werden müssen
+	 * 
+	 * @param k Kind, das eingetragen werden muss
+	 * @param g Gruppe, in die das Kind eingetragen werden muss
+	 * @return true wenn das Hinzufügen erfolgreich war. false wenn nicht
+	 */
 	public boolean addKindToGruppe(Kind k, Gruppe g){
 		
 		PreparedStatement ps;
@@ -342,6 +368,14 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
+	/**
+	 * Diese Methode ist für EXISTIERENDE Kinder, die in die existierende Gruppe eingetragen werden müssen
+	 * Sie ruft addKindToGruppe(Kind k, Gruppe g) auf
+	 * @param kind_id
+	 * @param gruppe_id
+	 * @return true wenn erfolgreich. false sonst
+	 * @see #addKindToGruppe(Kind k, Gruppe g)
+	 */
 	public boolean addKindToGruppe(int kind_id, int gruppe_id){
 		try {
 			executeStatement("SAVEPOINT anfang");
@@ -363,6 +397,13 @@ public class DBConnectorImpl {
 		return true;
 	}
 	
+	/**
+	 * Die Methode meldet das Kind aus der Gruppe ab. Das Kind bleibt in der DB existieren
+	 * 
+	 * @param kind_id ID des Kindes
+	 * @param gruppe_id ID der Gruppe
+	 * @return true wenn erfolgreich. false sonst
+	 */
 	private boolean kindAbmelden(int kind_id, int gruppe_id){
 		Savepoint svp = null;
 		try {
