@@ -1,5 +1,6 @@
 package impl;
 
+import interfaces.Elternteil;
 import interfaces.Gruppe;
 import interfaces.Kind;
 import interfaces.Kita;
@@ -18,17 +19,17 @@ import java.util.*;
 public class LogicImpl implements Logic {
 	Connection conn;
 	Password p = new Password();
-	DBConnectorImpl dbconncetor;
+	DBConnectorImpl dbconnector;
 
 	public LogicImpl() {
-		this.dbconncetor = DBConnectorImpl.valueOf(p.getHawAccName(), p.getHawAccPw());
-		this.dbconncetor.connect();
+		this.dbconnector = DBConnectorImpl.valueOf(p.getHawAccName(), p.getHawAccPw());
+		this.dbconnector.connect();
 	}
 
 	@Override
 	public Map<Integer, Kita> getKitas() {
 		try {
-			return dbconncetor.getKitas();
+			return dbconnector.getKitas();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -39,7 +40,7 @@ public class LogicImpl implements Logic {
 	@Override
 	public Map<Integer, Gruppe> getGruppen(Integer KitaId) {
 		try {
-			return dbconncetor.getGruppenByKitaID(KitaId);
+			return dbconnector.getGruppenByKitaID(KitaId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -50,7 +51,7 @@ public class LogicImpl implements Logic {
 	@Override
 	public Map<Integer, Kind> getKinder(Integer GruppeId) {
 		try {
-			return dbconncetor.getKinder(GruppeId);
+			return dbconnector.getKinder(GruppeId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -61,7 +62,7 @@ public class LogicImpl implements Logic {
 	@Override
 	public boolean isPlatzFrei(Integer KitaId, Integer GruppeId) {
 		try {
-			return dbconncetor.isPlatzFrei(GruppeId);
+			return dbconnector.isPlatzFrei(GruppeId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -72,18 +73,16 @@ public class LogicImpl implements Logic {
 	@Override
 	public boolean kindEintragen(String vorname, String nachname,
 			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange,
-			double gehalt, int familienmitglieder) {
+			double gehalt, int familienmitglieder, Elternteil elternteil) {
 		try {
-			if(dbconncetor.isPlatzFrei(GruppeId)){
-				dbconncetor.addKindToGruppe(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, GruppeId);
+			if(dbconnector.isPlatzFrei(GruppeId) && !warteschlange){
+				dbconnector.addKindToGruppe(dbconnector.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, elternteil).getId(), GruppeId);
 			} else if(warteschlange){
-				Kind k = dbconncetor.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder);
-				Gruppe g = dbconncetor.getGruppeByID(GruppeId);
-				dbconncetor.eintragenInWarteliste(k, g);
-			}
+				Kind k = dbconnector.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, elternteil);
+				Gruppe g = dbconnector.getGruppeByID(GruppeId);
+				dbconnector.eintragenInWarteliste(k, g);
+			} else return false;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -99,9 +98,9 @@ public class LogicImpl implements Logic {
 		Gruppe g = null;
 		Kita kita = null;
 		try {
-			k = dbconncetor.getKindByID(KindId);
-			g = dbconncetor.getGruppeByKind(k);
-			kita = dbconncetor.getKitaByKind(k);
+			k = dbconnector.getKindByID(KindId);
+			g = dbconnector.getGruppeByKind(k);
+			kita = dbconnector.getKitaByKind(k);
 		} catch (SQLException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -138,7 +137,7 @@ public class LogicImpl implements Logic {
 	public double preisErmitteln(Integer KindId) {
 		double preis = Double.NaN;
 		try {
-			preis = dbconncetor.getPriceByKindID(KindId);
+			preis = dbconnector.getPriceByKindID(KindId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -151,7 +150,7 @@ public class LogicImpl implements Logic {
 			int dauerBetreueung) {
 		
 		try {
-			return dbconncetor.getPriceByValues(FamMitglieder, gehalt, dauerBetreueung);
+			return dbconnector.getPriceByValues(FamMitglieder, gehalt, dauerBetreueung);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -162,7 +161,7 @@ public class LogicImpl implements Logic {
 	@Override
 	public Map<Gruppe,Integer> getWartelistePosition(int KindID) {
 		try {
-			return dbconncetor.getWartelistePosition(KindID);
+			return dbconnector.getWartelistePosition(KindID);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

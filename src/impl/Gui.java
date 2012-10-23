@@ -1,5 +1,6 @@
 package impl;
 
+import interfaces.Elternteil;
 import interfaces.Gruppe;
 import interfaces.Kind;
 import interfaces.Kita;
@@ -56,7 +57,8 @@ public class Gui {
 	private ArrayList<Kita> kitas = new ArrayList<Kita>();
 	private Gruppe dummiGroup = new GruppeImpl("",9999,"nachts",4);
 	private Kita dummiKita = new KitaImpl("",9999);
-	private Kind dummiKid = new KindImpl("","",0,9999,3);
+        private Elternteil dummiElternteil = new ElternteilImpl(9999, "", "", 0, "");
+	private Kind dummiKid = new KindImpl("","",Calendar.getInstance(),0.0,9999,3, dummiElternteil);
 	private Kind currentChild = dummiKid;
 	private Gruppe currentGroup = dummiGroup;
 	private Kita currentKita = dummiKita;
@@ -540,8 +542,10 @@ public class Gui {
 					
 					if(geprueft){
 						if(l.isPlatzFrei(currentKita_eintr.getId(),currentGroup_eintr.getId())){
-							l.kindEintragen(textFieldVorname.getText(),textFieldNachname.getText(),calendar,currentGroup_eintr.getId(), warteschlange,Double.parseDouble(textFieldGehalt.getText()),Integer.parseInt(textFieldMitglieder.getText()));
-							warteschlange = false;
+//							l.kindEintragen(textFieldVorname.getText(),textFieldNachname.getText(),calendar,currentGroup_eintr.getId(), warteschlange,Double.parseDouble(textFieldGehalt.getText()),Integer.parseInt(textFieldMitglieder.getText()));
+							//TODO: Textfeld(er) zur Erstellung/Auswahl von Elternteilen
+                                                        l.kindEintragen(textFieldVorname.getText(), textFieldNachname.getText(), calendar, currentGroup_eintr.getId(), warteschlange, Double.parseDouble(textFieldGehalt.getText()), Integer.parseInt(textFieldMitglieder.getText()), dummiElternteil);
+                                                        warteschlange = false;
 							geprueft = false;
 							btnPruefenEintragen.setText("Pr\u00FCfen");
 							lblMeldung.setText("Kind Eingetragen.");

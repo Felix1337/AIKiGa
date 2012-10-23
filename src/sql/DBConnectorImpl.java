@@ -214,7 +214,7 @@ public class DBConnectorImpl {
 	 */
 	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
 		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
-		String query = "SELECT Vorname, Nachname, Gehalt, ID, Familie FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
+		String query = "SELECT Vorname, Nachname, Gehalt, ID, Familie, Geburtsdatum FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, gruppeID);
 		ResultSet rs = ps.executeQuery();
@@ -224,7 +224,10 @@ public class DBConnectorImpl {
 			double gehalt = rs.getDouble("Gehalt");
 			Integer id = rs.getInt("ID");
 			int familie = rs.getInt("Familie");
-			kinder.put(id, new KindImpl(vname, nname, gehalt, id, familie));
+                        Calendar gebDatum = Calendar.getInstance();
+                        gebDatum.setTime(rs.getDate("GeburtsDatum"));
+                        Elternteil e = getElternteilByKindID(id);
+			kinder.put(id, new KindImpl(vname, nname, gebDatum, gehalt, id, familie, e));
 		}
 		return kinder;
 	}
@@ -284,7 +287,7 @@ public class DBConnectorImpl {
 	}
 	
 	public Kind getKindByID(int kindID) throws SQLException{
-		String query = "select Vorname, Nachname, Gehalt, Familie FROM Kind where id=?";
+		String query = "select ID, Vorname, Nachname, Gehalt, Familie, Geburtsdatum FROM Kind where id=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, kindID);
 		ResultSet rs = ps.executeQuery();
@@ -292,13 +295,17 @@ public class DBConnectorImpl {
 		String nachname ="";
 		double gehalt = Double.NaN;
 		int familie = -1;
+                Calendar gebDatum = Calendar.getInstance();
+                Elternteil e = new ElternteilImpl(-1, "", "", -1.0, ""); 
 		while(rs.next()){
 			vorname = rs.getString("Vorname");
 			nachname = rs.getString("Nachname");
 			gehalt = rs.getDouble("Gehalt");
 			familie = rs.getInt("Familie");
+                        gebDatum.setTime(rs.getDate("GeburtsDatum"));
+                        e = getElternteilByKindID(rs.getInt("ID"));
 		}
-		return new KindImpl(vorname, nachname, gehalt, kindID,familie);
+		return new KindImpl(vorname, nachname, gebDatum, gehalt, kindID,familie, e);
 	}
 	
 	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
@@ -569,7 +576,7 @@ public class DBConnectorImpl {
 		return new ElternteilImpl(id, vorname, nachname, gehalt, geschlecht);
 	}
 	
-	public Elternteil getElternteilByKindId(int id) throws SQLException{
+	public Elternteil getElternteilByKindID(int id) throws SQLException{
 		String query = "select Elternteil from Kind where ID=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, id);

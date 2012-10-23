@@ -1,5 +1,7 @@
 package interfaces;
 
+import java.util.Calendar;
+
 public interface Kind {
 
 	public String getVorname();
@@ -9,6 +11,10 @@ public interface Kind {
 	public double getGehalt();
 
 	public Integer getId();
+        
+        public Calendar getGeburtsDatum();
+        
+        public Elternteil getElternteil();
 	
 	public String toString();
 	
