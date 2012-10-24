@@ -544,7 +544,7 @@ public class Gui {
 						if(l.isPlatzFrei(currentKita_eintr.getId(),currentGroup_eintr.getId())){
 //							l.kindEintragen(textFieldVorname.getText(),textFieldNachname.getText(),calendar,currentGroup_eintr.getId(), warteschlange,Double.parseDouble(textFieldGehalt.getText()),Integer.parseInt(textFieldMitglieder.getText()));
 							//TODO: Textfeld(er) zur Erstellung/Auswahl von Elternteilen
-                                                        l.kindEintragen(textFieldVorname.getText(), textFieldNachname.getText(), calendar, currentGroup_eintr.getId(), warteschlange, Double.parseDouble(textFieldGehalt.getText()), Integer.parseInt(textFieldMitglieder.getText()), dummiElternteil);
+                                                        l.kindEintragen(textFieldVorname.getText(), textFieldNachname.getText(), calendar, currentGroup_eintr.getId(), warteschlange, Integer.parseInt(textFieldMitglieder.getText()), dummiElternteil);
                                                         warteschlange = false;
 							geprueft = false;
 							btnPruefenEintragen.setText("Pr\u00FCfen");
