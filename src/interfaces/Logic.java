@@ -32,8 +32,7 @@ public interface Logic {
 	//gehalt ist das gehalt der beiden eltern(darf nur 2 nachkommastellen haben)
 
 	public boolean kindEintragen(String vorname, String nachname,
-			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange,
-			double gehalt, int familienmitglieder, Elternteil elternteil);
+			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange, int familienmitglieder, Elternteil elternteil);
 	//eine Logdatei mit dem ermittelten Preis wird als Rechnung.txt angelegt
 	public void rechnungDrucken(Integer KindId);
 	

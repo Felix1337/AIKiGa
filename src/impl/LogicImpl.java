@@ -72,13 +72,12 @@ public class LogicImpl implements Logic {
 
 	@Override
 	public boolean kindEintragen(String vorname, String nachname,
-			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange,
-			double gehalt, int familienmitglieder, Elternteil elternteil) {
+			Calendar geburtsdatum, Integer GruppeId, boolean warteschlange, int familienmitglieder, Elternteil elternteil) {
 		try {
 			if(dbconnector.isPlatzFrei(GruppeId) && !warteschlange){
-				dbconnector.addKindToGruppe(dbconnector.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, elternteil).getId(), GruppeId);
+				dbconnector.addKindToGruppe(dbconnector.addKind(vorname, nachname, geburtsdatum,familienmitglieder, elternteil).getId(), GruppeId);
 			} else if(warteschlange){
-				Kind k = dbconnector.addKind(vorname, nachname, geburtsdatum, gehalt, familienmitglieder, elternteil);
+				Kind k = dbconnector.addKind(vorname, nachname, geburtsdatum, familienmitglieder, elternteil);
 				Gruppe g = dbconnector.getGruppeByID(GruppeId);
 				dbconnector.eintragenInWarteliste(k, g);
 			} else return false;

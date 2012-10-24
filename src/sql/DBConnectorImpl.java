@@ -296,8 +296,8 @@ public class DBConnectorImpl {
 	 * @return Das Kind-Object für das eingetragene Kind
 	 * @throws SQLException
 	 */
-	public Kind addKind(String vorame, String nachname, Calendar gDatum, double gehalt, int anzahlFamMit, Elternteil e) throws SQLException{
-		String query = "insert into kind(id,vorname,nachname,Geburtsdatum,Gehalt, Familie,Elternteil) values(NULL,?,?,?,?,?,?)";
+	public Kind addKind(String vorame, String nachname, Calendar gDatum, int anzahlFamMit, Elternteil e) throws SQLException{
+		String query = "insert into kind(id,vorname,nachname,Geburtsdatum, Familie,Elternteil) values(NULL,?,?,?,?,?)";
 		String date = gDatum == null ? "12.10.1987" : String.valueOf(gDatum.getTime().getDay())+"."+String.valueOf(gDatum.getTime().getMonth())+"."+String.valueOf(gDatum.getTime().getYear());
 		//String date = String.valueOf(gDatum.get(Calendar.DAY_OF_MONTH))+"."+String.valueOf(gDatum.get(Calendar.MONTH))+"."+String.valueOf(gDatum.get(Calendar.YEAR));
 		//String date = ;
@@ -305,9 +305,8 @@ public class DBConnectorImpl {
 		ps.setString(1, vorame);
 		ps.setString(2, nachname);
 		ps.setString(3, date);
-		ps.setDouble(4, gehalt);
-		ps.setInt(5, anzahlFamMit);
-		ps.setInt(6, e.getId());
+		ps.setInt(4, anzahlFamMit);
+		ps.setInt(5, e.getId());
 		ps.executeQuery();
 		getConn().commit();
 		String query_kind_id = "select max(id) as ID from Kind";
