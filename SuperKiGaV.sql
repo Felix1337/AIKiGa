@@ -1,7 +1,7 @@
 /*
 / @author Anton Romanov
-/ @date 07/10/2012
-/ @version 1.2
+/ @date 24/10/2012
+/ @version 1.3
 */
 
 
@@ -92,8 +92,6 @@ create table Kind (
  Vorname varchar2(100) not null,
  Nachname varchar2(100) not null,
  Geburtsdatum date not null,
- Gehalt number(*,2) not null,
- constraint CK_Kind_Gehalt check (Gehalt > 0),
  Familie number not null,
  constraint CK_Kind_Familie check (Familie>=2),
  Elternteil integer not null constraint FK_Kind_Elternteil references Elternteil(ID)
@@ -126,7 +124,7 @@ type rechnung_nested_type as table of rechnung_type;
 
 create table KindGruppe (
  Kind integer not null constraint FK_KindGruppe_Kind references Kind(ID),
- Gruppe integer not null constraint FK_KindGruppe_Gruppe references Gruppe(ID),
+ Gruppe integer constraint FK_KindGruppe_Gruppe references Gruppe(ID),
  Rechnungen rechnung_nested_type,
  Sonderleistung integer constraint FK_KindGruppe references Sonderleistung(ID),
  constraint PK_KindGruppe primary key (Kind,Gruppe)
@@ -291,18 +289,7 @@ trigger Gruppe_Anzahl_trigger
 /*
 /   Functions zum Ermitteln der Gebühren
 */
-create or replace
-function getPriceByID( kid IN integer) return integer as
-  gehalt number;
-  familie number;
-  stunden number;
-begin
-  select Gehalt into gehalt from Kind where ID=kid;
-  select Familie into familie from Kind where ID=kid;
-  select Stunden into stunden from Gruppe where Gruppe.ID=(select Gruppe from KindGruppe where KindGruppe.Kind=kid);
-  return getPriceByValues(gehalt,stunden,familie);
-end getPriceByID;
-/
+
 
 create or replace
 function getPriceByValues( Gehalt IN number, Stunden IN number, Familie in number) return number is
@@ -332,6 +319,19 @@ begin
 end getPriceByValues;
 /
 
+create or replace
+function getPriceByID( kid IN integer) return integer as
+  gehalt number;
+  familie number;
+  stunden number;
+begin
+  select e.Gehalt into gehalt from Kind k,Elternteil e where k.ID=kid and k.elternteil = e.id;
+  select Familie into familie from Kind where ID=kid;
+  select Stunden into stunden from Gruppe where Gruppe.ID=(select Gruppe from KindGruppe where KindGruppe.Kind=kid);
+  return getPriceByValues(gehalt,stunden,familie);
+end getPriceByID;
+/
+
 /*
 /
 */
@@ -357,6 +357,7 @@ end getKindIdByRechnungId;
 / Testdaten
 */
 insert into Bundesland(ID,Krzl,Bezeichnung) values(1,'HH','Hamburg');
+insert into Bundesland(ID,Krzl,Bezeichnung) values(2,'B','Berlin');
 insert into KLeiter(ID,Vorname,Nachname,Benutzername,Passwort) values(NULL,'Bruce','Lee','blee','12345');
 insert into Kita values(NULL,'Kita Bauerberg',1,1);
 insert into Tageszeit values(NULL,'vormittags');
@@ -364,7 +365,7 @@ insert into Tageszeit values(NULL,'nachmittags');
 insert into Tageszeit values(NULL,'ganztags');
 insert into Gruppe values(NULL,'Katzen',1,1,4);
 insert into Elternteil(ID,Vorname,Nachname,Geschlecht,Gehalt,Benutzername,Passwort) values(NULL,'M','Wolowitz','w',1200,'mwolowitz','12345');
-insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2500.00,2,1);
+insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2,1);
 --rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350))
 insert into KindGruppe values(1,1,rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350)),NULL);
 

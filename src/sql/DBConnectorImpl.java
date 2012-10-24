@@ -1,4 +1,5 @@
 package sql;
+import impl.BundeslandImpl;
 import impl.ElternteilImpl;
 import impl.GruppeImpl;
 import impl.KLeiterImpl;
@@ -6,6 +7,7 @@ import impl.KindImpl;
 import impl.KitaImpl;
 import impl.RechnungImpl;
 import impl.SonderleistungImpl;
+import interfaces.Bundesland;
 import interfaces.Elternteil;
 import interfaces.Gruppe;
 import interfaces.KLeiter;
@@ -30,9 +32,9 @@ import java.util.Map;
 
 /**
  * Die Klasse ist für die Verbindung mit der Oracle-DB zuständig
- *	@author Anton Romanov
- *	date 16.10.2012
- *	@version 1.3
+ * Denkt bitte an {@link #connect()} UND {@link #disconnect()} !!!
+ *	@author Anton Romanov (anton.romanov@haw-hamburg.de)
+ *	@version 1.3 <br>Stand 23.10.2012
  */
 
 public class DBConnectorImpl {
@@ -51,6 +53,11 @@ public class DBConnectorImpl {
 		return new DBConnectorImpl(user, password);
 	}
 	
+	/**
+	 * Baut die Vebindung mit der DB auf
+	 * @return true wenn erfolgreich. false sonst
+	 * @see #disconnect()
+	 */
 	public boolean connect(){
 		try {
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
@@ -79,6 +86,11 @@ public class DBConnectorImpl {
 		this.con=con;
 	}
 	
+	/**
+	 * Baut die Verbindung mit der DB ab
+	 * @return true wenn erfolgreich. false sonst
+	 * @see #connect()
+	 */
 	public boolean disconnect(){
 		try {
 			getConn().close();
@@ -185,19 +197,29 @@ public class DBConnectorImpl {
 	/*
 	 * Kita
 	 */
+	public Kita getKitaByID(int id) throws SQLException{
+		String query = "Select Bezeichnung, Kleiter, Bundesland from Kita where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		Kita kita = null;
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			kita = new KitaImpl(rs.getString("Bezeichnung"), id, getKLeiterByID(rs.getInt("KLeiter")), getBundeslandById(rs.getInt("Bundesland")));
+		}
+		return kita;
+	}
+	
 	public Kita getKitaByKindID(int id) throws SQLException{
 		Gruppe g = getGruppeByKindID(id);
-		String query = "select k.ID as KID, k.Bezeichnung as Kbez from Gruppe, Kita k where Gruppe.ID=?";
+		String query = "select k.ID as KID from Gruppe, Kita k where Gruppe.ID=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setString(1, String.valueOf(g.getId()));
 		ResultSet rs = ps.executeQuery();
-		String bezeichnung = "";
 		int kita_id = -1;
 		while(rs.next()){
 			kita_id = rs.getInt("KID");
-			bezeichnung = rs.getString("Kbez");
 		}
-		return new KitaImpl(bezeichnung, kita_id);
+		return getKitaByID(kita_id);
 	}
 	
 	public Kita getKitaByKind(Kind k) throws SQLException{
@@ -206,12 +228,11 @@ public class DBConnectorImpl {
 	
 	public Map<Integer, Kita> getKitas() throws SQLException {
 		Map<Integer, Kita> kitas = new HashMap<Integer, Kita>();
-		String query = "SELECT ID, Bezeichnung FROM Kita";
+		String query = "SELECT ID FROM Kita";
 		ResultSet rs = executeStatement(query);
 		while (rs.next()) {
 			Integer id = rs.getInt("ID");
-			String name = rs.getString("Bezeichnung");
-			kitas.put(id, new KitaImpl(name, id));
+			kitas.put(id, getKitaByID(id));
 		}
 		return kitas;
 	}
@@ -222,20 +243,13 @@ public class DBConnectorImpl {
 	 */
 	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
 		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
-		String query = "SELECT Vorname, Nachname, Gehalt, ID, Familie, Geburtsdatum FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
+		String query = "SELECT ID FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, gruppeID);
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
-			String vname = rs.getString("Vorname");
-			String nname = rs.getString("Nachname");
-			double gehalt = rs.getDouble("Gehalt");
 			Integer id = rs.getInt("ID");
-			int familie = rs.getInt("Familie");
-                        Calendar gebDatum = Calendar.getInstance();
-                        gebDatum.setTime(rs.getDate("GeburtsDatum"));
-                        Elternteil e = getElternteilByKindID(id);
-			kinder.put(id, new KindImpl(vname, nname, gebDatum, gehalt, id, familie, e));
+			kinder.put(id, getKindByID(id));
 		}
 		return kinder;
 	}
@@ -306,7 +320,7 @@ public class DBConnectorImpl {
 	}
 	
 	public Kind getKindByID(int kindID) throws SQLException{
-		String query = "select ID, Vorname, Nachname, Gehalt, Familie, Geburtsdatum FROM Kind where id=?";
+		String query = "select ID, Vorname, Nachname, Familie, Geburtsdatum FROM Kind where id=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, kindID);
 		ResultSet rs = ps.executeQuery();
@@ -319,12 +333,11 @@ public class DBConnectorImpl {
 		while(rs.next()){
 			vorname = rs.getString("Vorname");
 			nachname = rs.getString("Nachname");
-			gehalt = rs.getDouble("Gehalt");
 			familie = rs.getInt("Familie");
                         gebDatum.setTime(rs.getDate("GeburtsDatum"));
                         e = getElternteilByKindID(rs.getInt("ID"));
 		}
-		return new KindImpl(vorname, nachname, gebDatum, gehalt, kindID,familie, e);
+		return new KindImpl(vorname, nachname, gebDatum, kindID,familie, e);
 	}
 	
 	public void eintragenInWarteliste(Kind k, Gruppe g) throws SQLException{
@@ -354,7 +367,7 @@ public class DBConnectorImpl {
 				rechnung_id = rs.getInt("ID");
 			}
 			Calendar now = Calendar.getInstance();
-			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(k.getFamilie(), k.getGehalt(), g.getStunden())+")),NULL)";
+			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(k.getFamilie(), k.getElternteil().getGehalt(), g.getStunden())+")),NULL)";
 			System.out.println(query);
 			ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());
@@ -408,7 +421,7 @@ public class DBConnectorImpl {
 		Savepoint svp = null;
 		try {
 			svp = getConn().setSavepoint("KindAbmeldenAnfang");
-			String query_kg ="delete * from KindGruppe where Kind=? and Gruppe=?";
+			String query_kg ="update KindGruppe set Gruppe=NULL where Kind=? and Gruppe=?";
 			PreparedStatement ps = getConn().prepareStatement(query_kg);
 			ps.setInt(1, kind_id);
 			ps.setInt(2, gruppe_id);
@@ -425,6 +438,13 @@ public class DBConnectorImpl {
 		}
 	}
 	
+	/**
+	 * Die Methode liefert das Kind, zu dem die Rechung erstellt wurde
+	 * 
+	 * @param rechnung_id ID der Rechnung
+	 * @return Das Kind-Objekt, zu dem die Rechnung gehört
+	 * @throws SQLException
+	 */
 	public Kind getKindByRechnungId(int rechnung_id) throws SQLException{
 		String query = "select getkindidbyrechnungid(?) as ID from dual";
 		PreparedStatement ps = getConn().prepareStatement(query);
@@ -441,6 +461,12 @@ public class DBConnectorImpl {
 	
 	/*
 	 * Warteliste
+	 */
+	/**
+	 * 
+	 * @param kindID ID des Kindes
+	 * @return Abbildung von Gruppe auf Platz in der Warteliste für diese Gruppe
+	 * @throws SQLException
 	 */
 	public Map<Gruppe,Integer> getWartelistePosition(int kindID) throws SQLException{
 		Map<Gruppe,Integer> result = new HashMap<Gruppe,Integer>();
@@ -466,6 +492,12 @@ public class DBConnectorImpl {
 		return result;
 	}
 	
+	/**
+	 * 
+	 * @param gruppe_id ID der Gruppe
+	 * @return Anzahl der Kinder, die auf einen Platz in der Gruppe mit der ID gruppe_id warten
+	 * @throws SQLException
+	 */
 	public int getWartelisteLaenge(int gruppe_id) throws SQLException{
 		int result = -1;
 		String query = "select count(*) as Anzahl from Warteliste where Gruppe=?";
@@ -481,6 +513,13 @@ public class DBConnectorImpl {
 	/*
 	 * Rechnung
 	 */
+	/**
+	 * Rechnungen sind nur für Gruppen, für die das Kind angemeldet ist!
+	 * 
+	 * @param kind_id ID des Kindes
+	 * @return Eine Liste von Rechnungen, die zu dem Kind gehören
+	 * @throws SQLException
+	 */
 	public List<Rechnung> getRechungByKindID(int kind_id) throws SQLException{
 		List<Rechnung> result = new ArrayList<Rechnung>();
 		String query = "select ID from the(select Rechnungen from KindGruppe where Kind=?)";
@@ -493,6 +532,7 @@ public class DBConnectorImpl {
 		return result;
 	}
 	
+	@Deprecated
 	private Rechnung getRechnungByID(int rechnung_id) throws SQLException{
 		String query = "select * from the(select Rechnungen from KindGruppe) where ID=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
@@ -647,6 +687,22 @@ public class DBConnectorImpl {
 			id = rs.getInt("ID");
 		}
 		return getElternteilById(id);
+	}
+	
+	/*
+	 * Bundesland
+	 */
+	
+	public Bundesland getBundeslandById(int id) throws SQLException{
+		String query = "select Bezeichnung, Krzl from Bundesland where ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, id);
+		ResultSet rs = ps.executeQuery();
+		Bundesland bundesland = null;
+		while(rs.next()){
+			bundesland = new BundeslandImpl(id, rs.getString("Krzl"), rs.getString("Bezeichnung"));
+		}
+		return bundesland;
 	}
 	
 }

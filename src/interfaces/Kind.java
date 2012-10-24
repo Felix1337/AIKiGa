@@ -8,8 +8,6 @@ public interface Kind {
 
 	public String getNachname();
 
-	public double getGehalt();
-
 	public Integer getId();
         
         public Calendar getGeburtsDatum();

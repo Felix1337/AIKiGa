@@ -56,9 +56,9 @@ public class Gui {
 	private Logic l;
 	private ArrayList<Kita> kitas = new ArrayList<Kita>();
 	private Gruppe dummiGroup = new GruppeImpl("",9999,"nachts",4);
-	private Kita dummiKita = new KitaImpl("",9999);
+	private Kita dummiKita = new KitaImpl("",9999, new KLeiterImpl(-1, "", ""), new BundeslandImpl(-1, "", ""));
         private Elternteil dummiElternteil = new ElternteilImpl(9999, "", "", 0, "");
-	private Kind dummiKid = new KindImpl("","",Calendar.getInstance(),0.0,9999,3, dummiElternteil);
+	private Kind dummiKid = new KindImpl("","",Calendar.getInstance(),9999,3, dummiElternteil);
 	private Kind currentChild = dummiKid;
 	private Gruppe currentGroup = dummiGroup;
 	private Kita currentKita = dummiKita;
