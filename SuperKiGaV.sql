@@ -1,7 +1,7 @@
 /*
 / @author Anton Romanov
-/ @date 24/10/2012
-/ @version 1.3
+/ @date 26/10/2012
+/ @version 1.4
 */
 
 
@@ -292,11 +292,15 @@ trigger Gruppe_Anzahl_trigger
 
 
 create or replace
-function getPriceByValues( Gehalt IN number, Stunden IN number, Familie in number) return number is
+function getPriceByValues( Gehalt IN number, Familie in number, Gruppe_id in number) return number is
   preis number(38,0);
   f varchar2(20);
   s varchar2(200);
+  bundesland varchar2(3);
+  stunden number;
 begin
+  select Krzl into bundesland from Gruppe g, Bundesland b, Kita k where g.kita = k.id and k.bundesland=b.id and g.id=Gruppe_id;
+  select Stunden into stunden from Gruppe g where g.id = Gruppe_id;
    case
     WHEN Familie=2 THEN f:='Zwei';
     when Familie=3 Then f:='Drei';
@@ -305,30 +309,28 @@ begin
     when Familie>=6 then f:='Sechs';
   end case f;
   if Stunden>0 and Stunden<=4 then 
-    execute immediate 'select '||f||' from (select '|| f ||' from PreiseE where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
+    execute immediate 'select '||f||' from (select '|| f ||' from PreiseE'||bundesland||' where Netto<='||Gehalt||' order by '||f||' desc) where rownum=1' into preis;
   elsif Stunden>4 and Stunden<=6 then
-    execute immediate 'select '||f||' from (select '|| f ||' from PreiseD where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
+    execute immediate 'select '||f||' from (select '|| f ||' from PreiseD'||bundesland||' where Netto<='||Gehalt||' order by '||f||' desc) where rownum=1' into preis;
   elsif Stunden>6 and Stunden<=8 then
-     execute immediate 'select '||f||' from (select '|| f ||' from PreiseC where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
+     execute immediate 'select '||f||' from (select '|| f ||' from PreiseC'||bundesland||' where Netto<='||Gehalt||' order by '||f||' desc) where rownum=1' into preis;
   elsif Stunden>8 and Stunden<=10 then
-     execute immediate 'select '||f||' from (select '|| f ||' from PreiseB where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
+     execute immediate 'select '||f||' from (select '|| f ||' from PreiseB'||bundesland||' where Netto<='||Gehalt||' order by '||f||' desc) where rownum=1' into preis;
   elsif Stunden>10 and Stunden<=12 then
-     execute immediate 'select '||f||' from (select '|| f ||' from PreiseA where Netto>='||Gehalt||' order by '||f||' asc) where rownum=1' into preis;
+     execute immediate 'select '||f||' from (select '|| f ||' from PreiseA'||bundesland||' where Netto<='||Gehalt||' order by '||f||' desc) where rownum=1' into preis;
   end if;
   return preis;
 end getPriceByValues;
 /
 
 create or replace
-function getPriceByID( kid IN integer) return integer as
+function getPriceByID( kid IN integer, gruppe_id IN number) return integer as
   gehalt number;
   familie number;
-  stunden number;
 begin
   select e.Gehalt into gehalt from Kind k,Elternteil e where k.ID=kid and k.elternteil = e.id;
   select Familie into familie from Kind where ID=kid;
-  select Stunden into stunden from Gruppe where Gruppe.ID=(select Gruppe from KindGruppe where KindGruppe.Kind=kid);
-  return getPriceByValues(gehalt,stunden,familie);
+  return getPriceByValues(gehalt,familie,gruppe_id);
 end getPriceByID;
 /
 
@@ -369,6 +371,9 @@ insert into Kind values(NULL,'Howard','Wolowitz','01.01.2010',2,1);
 --rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350))
 insert into KindGruppe values(1,1,rechnung_nested_type(rechnung_type(1,to_date('18.10.2012','DD.MM.YYYY'),350)),NULL);
 
+insert into KLeiter(ID,Vorname,Nachname,Benutzername,Passwort) values(NULL,'Arnold','Schwarzenegger','terminator','12345');
+insert into Kita values(NULL,'Power Kita Berlin',1,2);
+insert into Gruppe values(NULL,'Katzen',1,2,4);
 /*
 insert into Kind values(NULL,'Max','Musterman','01.01.2010',1500.00,3);
 insert into Kind values(NULL,'Max','Plank','08.10.1978',890.00,4);

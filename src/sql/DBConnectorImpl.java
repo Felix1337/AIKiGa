@@ -254,10 +254,11 @@ public class DBConnectorImpl {
 		return kinder;
 	}
 	
-	public double getPriceByKindID(int id) throws SQLException{
-		String query = "select getPriceByID(?) as Preis from dual";
+	public double getPriceByKindID(int id, int gruppe_id) throws SQLException{
+		String query = "select getPriceByID(?,?) as Preis from dual";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, id);
+		ps.setInt(2, gruppe_id);
 		ResultSet rs = ps.executeQuery();
 		double preis = Double.NaN;
 		while(rs.next()){
@@ -266,8 +267,8 @@ public class DBConnectorImpl {
 		return preis;
 	}
 	
-	public double getPriceByKind(Kind k) throws SQLException {
-		return getPriceByKindID(k.getId());
+	public double getPriceByKind(Kind k, Gruppe g) throws SQLException {
+		return getPriceByKindID(k.getId(), g.getId());
 	}
 	
 	public double getPriceByValues(int famMitglieder, double gehalt, int dauerBetreueung) throws SQLException{
@@ -561,7 +562,7 @@ public class DBConnectorImpl {
 		}
 		System.out.println(rechung_id);
 		Calendar now = Calendar.getInstance();
-		String query = "insert into the(select Rechnungen from KindGruppe where Kind=? and Gruppe=?) values("+rechung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByKindID(kind_id)+")";
+		String query = "insert into the(select Rechnungen from KindGruppe where Kind=? and Gruppe=?) values("+rechung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByKindID(kind_id,group_id)+")";
 		System.out.println(query);
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setInt(1, kind_id);
@@ -668,6 +669,19 @@ public class DBConnectorImpl {
 		return getElternteilById(e_id);
 	}
 	
+	/**
+	 * Als Geschlecht bitte nur "m" oder "w" übergeben! Alles andere wird nicht angenommen!!! <br>
+	 * Als Gehalt bitte das Netto-Einkommen der beiden Erziehungsberechtigten
+	 * 
+	 * @param vorname Vorname der Mutter / des Vaters
+	 * @param nachname Nachname der Mutter / des Vaters
+	 * @param geschlecht Geschlecht der Mutter / des Vaters. "m" für männlich, "w" für weiblich 
+	 * @param gehalt Gehalt der beiden Elternteile!
+	 * @param benutzername lokale Benutzername
+	 * @param passwort lokales Passwort
+	 * @return Das Elternteil-Object
+	 * @throws SQLException
+	 */
 	public Elternteil addElternteil(String vorname, String nachname, String geschlecht, double gehalt, String benutzername, String passwort) throws SQLException{
 		String query = "insert into Elternteil(ID,Vorname,Nachname,Geschlecht,Gehalt,Benutzername,Passwort) values(NULL,?,?,?,?,?,?)";
 		PreparedStatement ps = getConn().prepareStatement(query);

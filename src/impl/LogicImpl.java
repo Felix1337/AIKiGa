@@ -136,7 +136,8 @@ public class LogicImpl implements Logic {
 	public double preisErmitteln(Integer KindId) {
 		double preis = Double.NaN;
 		try {
-			preis = dbconnector.getPriceByKindID(KindId);
+			//Statt 1 muss ID der Gruppe sein!
+			preis = dbconnector.getPriceByKindID(KindId,1);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
