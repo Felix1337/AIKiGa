@@ -271,12 +271,12 @@ public class DBConnectorImpl {
 		return getPriceByKindID(k.getId(), g.getId());
 	}
 	
-	public double getPriceByValues(int famMitglieder, double gehalt, int dauerBetreueung) throws SQLException{
+	public double getPriceByValues(int famMitglieder, double gehalt, int gruppe_id) throws SQLException{
 		String query = "select getPriceByValues(?,?,?) as Preis from dual";
 		PreparedStatement ps = getConn().prepareStatement(query);
 		ps.setDouble(1, gehalt);
-		ps.setInt(2, dauerBetreueung);
-		ps.setInt(3, famMitglieder);
+		ps.setInt(2, famMitglieder);
+		ps.setInt(3, gruppe_id);
 		ResultSet rs = ps.executeQuery();
 		double preis = -1.0;
 		while(rs.next()){
