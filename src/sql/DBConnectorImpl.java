@@ -143,9 +143,9 @@ public class DBConnectorImpl {
 		ResultSet rs = ps.executeQuery();
 		while (rs.next()) {
 			Integer id = rs.getInt("GID");
-			String name = rs.getString("GBez");
-			String zeit = rs.getString("Tbez");
-			int stunden = rs.getInt("std");
+//			String name = rs.getString("GBez");
+//			String zeit = rs.getString("Tbez");
+//			int stunden = rs.getInt("std");
 			gruppen.put(id, getGruppeByID(id));
 		}
 		return gruppen;
@@ -241,7 +241,7 @@ public class DBConnectorImpl {
 	/*
 	 * Kind
 	 */
-	public Map<Integer, Kind> getKinder(int gruppeID) throws SQLException {
+	public Map<Integer, Kind> getKinderByGruppeID(int gruppeID) throws SQLException {
 		Map<Integer, Kind> kinder = new HashMap<Integer, Kind>();
 		String query = "SELECT ID FROM Kind k, KindGruppe kg where k.ID = kg.Kind and kg.Gruppe=?";
 		PreparedStatement ps = getConn().prepareStatement(query);
@@ -283,6 +283,18 @@ public class DBConnectorImpl {
 			preis = rs.getDouble("Preis");
 		}
 		return preis;
+	}
+	
+	public List<Kind> getKinderByKita(Kita k) throws SQLException{
+		List<Kind> kinder = new ArrayList<Kind>();
+		String query = "select kg.Kind from KindGruppe kg, Kita k, Gruppe g where kg.Gruppe=g.id and g.Kita= k.ID and k.ID=?";
+		PreparedStatement ps = getConn().prepareStatement(query);
+		ps.setInt(1, k.getId());
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()){
+			kinder.add(getKindByID(rs.getInt("Kind")));
+		}
+		return kinder;
 	}
 	
 	/**
@@ -367,7 +379,7 @@ public class DBConnectorImpl {
 				rechnung_id = rs.getInt("ID");
 			}
 			Calendar now = Calendar.getInstance();
-			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(k.getFamilie(), k.getElternteil().getGehalt(), g.getStunden())+")),NULL)";
+			String query = "insert into KindGruppe values(?,?,rechnung_nested_type(rechnung_type("+rechnung_id+",to_date('"+DateFormat.getDateInstance(DateFormat.MEDIUM).format(now.getTime())+"','DD.MM.YYYY'),"+getPriceByValues(k.getFamilie(), k.getElternteil().getGehalt(), g.getId())+")),NULL)";
 			System.out.println(query);
 			ps = getConn().prepareStatement(query);
 			ps.setInt(1, k.getId());

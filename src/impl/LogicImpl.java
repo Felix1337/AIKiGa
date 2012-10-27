@@ -51,7 +51,7 @@ public class LogicImpl implements Logic {
 	@Override
 	public Map<Integer, Kind> getKinder(Integer GruppeId) {
 		try {
-			return dbconnector.getKinder(GruppeId);
+			return dbconnector.getKinderByGruppeID(GruppeId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
