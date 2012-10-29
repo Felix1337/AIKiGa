@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>SuperKiGaV - Log-In für Kindergartenleiter</title>
+<link href="css/bootstrap.css" rel="stylesheet" />
+</head>
+<body>
+
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="#"><img src="/images/navbar-logo.png" /></a>
+				<div class="nav-collapse">
+					<ul class="nav">
+						<li><a href="/TwitterKiGaV/bootstrap/index.html">Home</a></li>
+						<li><a href="/TwitterKiGaV/bootstrap/login.html">Anmelden</a></li>
+						<li class="active"><a href="/#">Leiter Log-In</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 	Weil Rest sonst zum Teil verdeckt -->
+	<div class="row-fluid"><div class="span12"></div></div>
+	<div class="row-fluid"><div class="span12"></div></div>
+	
+	<div class="row-fluid">
+	<div class="span3"></div>
+	<div class="span6">
+		<div class="row user">
+   			<label for="username_or_email" tabindex="-1">Benutzername</label>
+   			<input aria-required="true" autocapitalize="off" autocorrect="off" autofocus="autofocus" class="text" id="username_or_email" name="session[username_or_email]" type="text" />
+		</div>
+	</div>
+	<div class="span3"></div>
+	</div>
+	<div class="row-fluid">
+		<div class="span3"></div>
+		<div class="span6">
+			<div class="row password">
+				<label for="password" tabindex="-1">Password</label>
+   				<input aria-required="true" class="password text" id="password" name="session[password]" type="password" value="" />
+			</div>
+		</div>
+		<div class="span3"></div>
+	</div>
+	<div class="row-fluid">
+		<div class="span3"></div>
+		<div class="span6">
+			<fieldset class="buttons">
+   				<a href="/TwitterKiGaV/bootstrap/index.html"><input class="submit button" id="cancel" name="cancel" type="submit" value="Abbrechen" /></a>
+   				<input type="submit" value="Anmelden" class="submit button selected" id="allow">
+   			</fieldset>
+   		</div>
+	</div>
+
+	<script type="http://code.jquery.com/jquery-latest.js" type="edited" />
+	<script src="js/bootstrap.js" type="edited" />
+</body>
+</html>

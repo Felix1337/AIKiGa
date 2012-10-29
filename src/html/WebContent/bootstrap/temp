@@ -1,0 +1,84 @@
+===================================================================================================
+SIDEBAR
+===================================================================================================
+			<div class="span3">
+				<div class="well sidebar-nav">
+					<ul class="nav nav-list">
+						<li class="nav-header">Test</li>
+							<li class="active"><a href="#">Home</a></li>
+							<li><a href="#">X</a></li>
+							<li><a href="#">Y</a></li>
+							<li><a href="#">Z</a></li>
+						<li class="nav-header">Andere Kategorie</li>
+							<li><a href="#">A</a></li>
+							<li><a href="#">B</a></li>
+							<li><a href="#">C</a></li>
+					</ul>
+				</div>
+			</div>
+
+===================================================================================================
+LOGGED OUT NAVBAR (Active->Active)
+===================================================================================================			
+
+<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</a>
+				<a class="brand" href="#"><img src="/images/navbar-logo.png" /></a>
+				<div class="nav-collapse">
+					<ul class="nav">
+						<li><a href="/TwitterKiGaV/bootstrap/index.html">Home</a></li>
+						<li class="active"><a href="/TwitterKiGaV/bootstrap/login.html">Anmelden</a></li>
+						<li><a href="/TwitterKiGaV/bootstrap/loginKLeiter.html">Leiter Log-In</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 	Weil Rest sonst zum Teil verdeckt -->
+	<div class="row-fluid"><div class="span12"></div></div>
+
+===================================================================================================
+NAVBAR USERINFO
+===================================================================================================
+<p class="navbar-text pull-right"><a href="#"> Log Out</a></p>
+<p class="navbar-text pull-right">Logged in as <a href="#">username</a>   </p>
+
+===================================================================================================
+LOG-IN TEXTFIELDS&BUTTONS
+===================================================================================================
+
+		<div class="row-fluid">
+			<div class="span3"></div>
+			<div class="span6">
+				<div class="row user">
+   					<label for="username_or_email" tabindex="-1">Benutzername</label>
+   					<input aria-required="true" autocapitalize="off" autocorrect="off" autofocus="autofocus" class="text" id="username_or_email" name="session[username_or_email]" type="text" />
+				</div>
+			</div>
+			<div class="span3"></div>
+		</div>
+		<div class="row-fluid">
+			<div class="span3"></div>
+			<div class="span6">
+				<div class="row password">
+					<label for="password" tabindex="-1">Password</label>
+   					<input aria-required="true" class="password text" id="password" name="session[password]" type="password" value="" />
+				</div>
+			</div>
+			<div class="span3"></div>
+		</div>
+		<div class="row-fluid">
+			<div class="span3"></div>
+			<div class="span6">
+				<fieldset class="buttons">	
+   					<input class="submit button" id="cancel" name="cancel" type="submit" value="Abbrechen" />
+   					<input type="submit" value="Anmelden" class="submit button selected" id="allow">
+   				</fieldset>
+   			</div>
+		</div>
