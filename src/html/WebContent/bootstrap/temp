@@ -1,23 +1,4 @@
 ===================================================================================================
-SIDEBAR
-===================================================================================================
-			<div class="span3">
-				<div class="well sidebar-nav">
-					<ul class="nav nav-list">
-						<li class="nav-header">Test</li>
-							<li class="active"><a href="#">Home</a></li>
-							<li><a href="#">X</a></li>
-							<li><a href="#">Y</a></li>
-							<li><a href="#">Z</a></li>
-						<li class="nav-header">Andere Kategorie</li>
-							<li><a href="#">A</a></li>
-							<li><a href="#">B</a></li>
-							<li><a href="#">C</a></li>
-					</ul>
-				</div>
-			</div>
-
-===================================================================================================
 LOGGED OUT NAVBAR (Active->Active)
 ===================================================================================================			
 
@@ -37,6 +18,7 @@ LOGGED OUT NAVBAR (Active->Active)
 						<li><a href="/TwitterKiGaV/bootstrap/loginKLeiter.html">Leiter Log-In</a></li>
 					</ul>
 				</div>
+                                <!-- NAVBAR USERINFO hier, wenn eingeloggt -->
 			</div>
 		</div>
 	</div>
@@ -82,3 +64,57 @@ LOG-IN TEXTFIELDS&BUTTONS
    				</fieldset>
    			</div>
 		</div>
+
+===================================================================================================
+TABELLE
+===================================================================================================
+
+<table class="table table-stiped">  
+        <thead>  
+          <tr>
+            <!-- Spaltennamen -->
+            <th>Gruppenname</th>  
+            <th>Belegung</th>  
+            <th>Warteliste</th>  
+          </tr>  
+        </thead>  
+        <tbody>  
+          <!-- Erste Zeile -->
+          <tr>  
+            <td><a href="#gruppe">Polarbären</a></td>  
+            <td><a href="#kinder">2/30</a></td>  
+            <td><a href="#warteliste">5</a></td>
+          </tr>
+          <!-- 2. Zeile etc. -->
+          <tr>  
+            <td><a href="#gruppe">Streunende Katzen</a></td>  
+            <td><a href="#kinder">0/30</a></td>
+            <td><a href="#warteliste">0</a></td>
+          </tr>  
+          <tr>  
+            <td><a href="#gruppe">EXTRA ZEILE</a></td>  
+            <td><a href="#kinder">3/30</a></td>
+            <td><a href="#warteliste">20</a></td>  
+          </tr>  
+        </tbody>  
+      </table>
+
+===================================================================================================
+SIDEBAR
+===================================================================================================
+			<div class="span3">
+				<div class="well sidebar-nav">
+					<ul class="nav nav-list">
+						<li class="nav-header">Test</li>
+							<li class="active"><a href="#">Home</a></li>
+							<li><a href="#">X</a></li>
+							<li><a href="#">Y</a></li>
+							<li><a href="#">Z</a></li>
+						<li class="nav-header">Andere Kategorie</li>
+							<li><a href="#">A</a></li>
+							<li><a href="#">B</a></li>
+							<li><a href="#">C</a></li>
+					</ul>
+				</div>
+			</div>
+
