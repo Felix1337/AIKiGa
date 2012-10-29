@@ -47,7 +47,7 @@ LOGGED OUT NAVBAR (Active->Active)
 NAVBAR USERINFO
 ===================================================================================================
 <p class="navbar-text pull-right"><a href="#"> Log Out</a></p>
-<p class="navbar-text pull-right">Logged in as <a href="#">username</a>   </p>
+<p class="navbar-text pull-right">Logged in as <a href="#">username</a> &nbsp &nbsp &nbsp</p>
 
 ===================================================================================================
 LOG-IN TEXTFIELDS&BUTTONS
